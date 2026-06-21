@@ -1,6 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { map } from 'rxjs';
+import { combineLatest, interval, map, startWith } from 'rxjs';
 import {
   CopilotInstruction,
   RaceState,
@@ -13,6 +13,7 @@ import {
   TrackDocument,
   VehiclePosition,
   InstructionsDocument,
+  TelemetrySnapshot,
 } from '../../models/telemetry.model';
 import { TelemetryService } from '../../services/telemetry.service';
 import { ConnectionStatusComponent } from './components/connection-status.component';
@@ -96,6 +97,11 @@ interface OsmTrackMap {
   ghostPoint: { x: number; y: number } | null;
 }
 
+interface ReceivedTelemetrySnapshot {
+  snapshot: TelemetrySnapshot;
+  receivedAtMs: number;
+}
+
 @Component({
   selector: 'app-live-dashboard',
   imports: [
@@ -118,8 +124,15 @@ export class LiveDashboardComponent {
   readonly mapMode = signal<'circuit' | 'osm'>('circuit');
   private readonly telemetryService = inject(TelemetryService);
 
-  readonly vm$ = this.telemetryService.latest$.pipe(
-    map((snapshot): DashboardViewModel => {
+  readonly vm$ = combineLatest([
+    this.telemetryService.latest$.pipe(
+      map((snapshot): ReceivedTelemetrySnapshot => ({ snapshot, receivedAtMs: Date.now() })),
+    ),
+    interval(1000).pipe(startWith(0)),
+  ]).pipe(
+    map(([received]): DashboardViewModel => {
+      const { snapshot, receivedAtMs } = received;
+      const nowMs = Date.now();
       const telemetry = snapshot.data;
       const session = snapshot.session ?? null;
       const track = snapshot.track ?? null;
@@ -142,7 +155,7 @@ export class LiveDashboardComponent {
         telemetry?.race?.lapTotal,
         telemetry?.race?.total,
       );
-      const chrono = this.chrono(telemetry);
+      const chrono = this.chrono(telemetry, nowMs, receivedAtMs);
       const speed = this.firstNumber(
         telemetry?.gpsSpeedKmh,
         telemetry?.speedGps,
@@ -360,13 +373,20 @@ export class LiveDashboardComponent {
     return globalLabels[key] ?? knownLabels[key] ?? value;
   }
 
-  private chrono(telemetry: Telemetry | null): string {
+  private chrono(telemetry: Telemetry | null, nowMs: number, receivedAtMs: number): string {
+    if (!telemetry) {
+      return '--:--';
+    }
+
     if (telemetry?.chrono) {
-      return telemetry.chrono;
+      return this.liveChrono(telemetry.chrono, telemetry, nowMs, receivedAtMs) ?? telemetry.chrono;
     }
 
     if (telemetry?.race?.chrono) {
-      return telemetry.race.chrono;
+      return (
+        this.liveChrono(telemetry.race.chrono, telemetry, nowMs, receivedAtMs) ??
+        telemetry.race.chrono
+      );
     }
 
     const seconds = this.firstNumber(
@@ -382,12 +402,74 @@ export class LiveDashboardComponent {
     }
 
     const elapsedMs = this.firstNumber(telemetry?.elapsedMs, telemetry?.race?.elapsedMs);
-    const totalSeconds = elapsedMs !== null ? Math.floor(elapsedMs / 1000) : Math.floor(seconds);
+    const baseSeconds = elapsedMs !== null ? Math.floor(elapsedMs / 1000) : Math.floor(seconds);
+    const totalSeconds = this.isRaceLive(telemetry)
+      ? baseSeconds + this.secondsSinceSnapshotReceipt(nowMs, receivedAtMs)
+      : baseSeconds;
+    return this.formatChrono(totalSeconds);
+  }
+
+  private liveChrono(
+    value: string,
+    telemetry: Telemetry,
+    nowMs: number,
+    receivedAtMs: number,
+  ): string | null {
+    const baseSeconds = this.parseChronoSeconds(value);
+    if (baseSeconds === null || !this.isRaceLive(telemetry)) {
+      return null;
+    }
+
+    return this.formatChrono(baseSeconds + this.secondsSinceSnapshotReceipt(nowMs, receivedAtMs));
+  }
+
+  private parseChronoSeconds(value: string): number | null {
+    const parts = value
+      .trim()
+      .split(':')
+      .map((part) => Number(part.replace(',', '.')));
+    if (!parts.length || parts.some((part) => !Number.isFinite(part))) {
+      return null;
+    }
+
+    if (parts.length === 2) {
+      return Math.floor(parts[0] * 60 + parts[1]);
+    }
+    if (parts.length === 3) {
+      return Math.floor(parts[0] * 3600 + parts[1] * 60 + parts[2]);
+    }
+
+    return null;
+  }
+
+  private formatChrono(totalSeconds: number): string {
     const minutes = Math.floor(totalSeconds / 60)
       .toString()
       .padStart(2, '0');
     const remainingSeconds = (totalSeconds % 60).toString().padStart(2, '0');
     return `${minutes}:${remainingSeconds}`;
+  }
+
+  private secondsSinceSnapshotReceipt(nowMs: number, receivedAtMs: number): number {
+    return Math.max(0, Math.floor((nowMs - receivedAtMs) / 1000));
+  }
+
+  private isRaceLive(telemetry: Telemetry): boolean {
+    if (telemetry.raceStarted === true) {
+      return true;
+    }
+
+    const state = this.normalizedKey(
+      telemetry.status ??
+        telemetry.raceState ??
+        telemetry.race?.status ??
+        telemetry.race?.state ??
+        telemetry.race?.raceState ??
+        telemetry.strategy ??
+        telemetry.activeStrategy ??
+        null,
+    );
+    return ['depart', 'start', 'course', 'race', 'running'].includes(state);
   }
 
   private firstNumber(...values: unknown[]): number | null {

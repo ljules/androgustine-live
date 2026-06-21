@@ -127,7 +127,12 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (min-width: 768px) {
       .primary-telemetry {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns:
+          minmax(0, 1fr)
+          minmax(0, 1fr)
+          minmax(13rem, 1.45fr)
+          minmax(0, 0.95fr)
+          minmax(0, 0.95fr);
       }
 
       .speed {
