@@ -7,16 +7,16 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   template: `
     <section class="secondary-metrics">
       <article class="metric">
-        <span class="metric-icon">Temp.</span>
-        <strong>{{ temperature ?? '--' }} °C</strong>
+        <span class="metric-icon">🌡</span>
+        <strong>{{ temperature === null ? '--' : (temperature | number: '1.1-1') }} °C</strong>
       </article>
       <article class="metric">
-        <span class="metric-icon">Vent</span>
-        <strong>{{ windSpeed ?? '--' }} km/h</strong>
+        <span class="metric-icon">💨</span>
+        <strong>{{ windSpeed === null ? '--' : (windSpeed | number: '1.1-1') }} km/h</strong>
       </article>
       <article class="metric">
-        <span class="metric-icon">Pluie</span>
-        <strong>{{ rainProbability ?? '--' }} %</strong>
+        <span class="metric-icon">💧</span>
+        <strong>{{ rainProbability === null ? '--' : (rainProbability | number: '1.0-0') }} %</strong>
       </article>
       <article class="metric">
         <img src="assets/icons/heart.png" alt="" />
@@ -100,7 +100,9 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .metric-icon {
-        font-size: 0.7rem;
+        min-width: 1.1rem;
+        font-size: 1.05rem;
+        text-align: center;
       }
 
       .metric strong {

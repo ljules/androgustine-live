@@ -62,8 +62,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         width: min(100%, 31rem);
         margin-inline: auto;
         border-width: 0.26rem;
-        padding: 0.65rem 1rem 0.78rem;
-        font-size: clamp(2rem, 10vw, 3.7rem);
+        padding: 0.42rem 0.75rem 0.5rem;
+        font-size: clamp(1.35rem, 6vw, 2.2rem);
         text-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.45);
       }
 

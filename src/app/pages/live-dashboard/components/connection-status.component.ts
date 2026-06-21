@@ -39,14 +39,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .connection {
-        gap: 0.55rem;
-        font-size: clamp(1.05rem, 4.4vw, 1.55rem);
+        gap: 0.38rem;
+        font-size: clamp(0.62rem, 2.2vw, 0.82rem);
         line-height: 1.1;
       }
 
       .connection-dot {
-        width: 0.75rem;
-        height: 0.75rem;
+        width: 0.45rem;
+        height: 0.45rem;
       }
     }
   `,

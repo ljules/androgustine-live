@@ -128,17 +128,18 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .metric {
-        min-height: 5.6rem;
-        padding: 0.75rem;
+        min-height: 4.25rem;
+        padding: 0.55rem;
+        gap: 0 0.45rem;
       }
 
       .metric img {
-        width: clamp(2.35rem, 11vw, 3.25rem);
-        height: clamp(2.35rem, 11vw, 3.25rem);
+        width: clamp(1.7rem, 7.4vw, 2.25rem);
+        height: clamp(1.7rem, 7.4vw, 2.25rem);
       }
 
       .metric strong {
-        font-size: clamp(2rem, 9vw, 3.25rem);
+        font-size: clamp(1.35rem, 6vw, 2.1rem);
       }
 
       .metric span {
@@ -152,21 +153,21 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
       .speed {
         grid-column: 1 / -1;
-        min-height: clamp(11rem, 36vh, 17rem);
+        min-height: clamp(7rem, 21vh, 10rem);
         border: 0;
         background: transparent;
         box-shadow: none;
       }
 
       .speed strong {
-        font-size: clamp(7.5rem, 36vw, 14rem);
+        font-size: clamp(4.2rem, 18vw, 7rem);
         text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.55);
       }
 
       .speed span {
         align-self: center;
-        margin: 1.4rem 0 0;
-        font-size: clamp(2rem, 8vw, 3.2rem);
+        margin: 0.75rem 0 0;
+        font-size: clamp(1.3rem, 4.2vw, 2rem);
       }
     }
   `,

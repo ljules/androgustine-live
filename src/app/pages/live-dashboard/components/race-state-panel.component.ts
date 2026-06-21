@@ -128,24 +128,25 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .race-state-panel {
-        gap: 0.8rem;
+        gap: 0.55rem;
         border: 0;
         border-top: 1px solid #f27032;
         border-radius: 0;
         background: transparent;
-        padding: 1rem 0 0;
+        padding: 0.7rem 0 0;
         box-shadow: none;
       }
 
       .state-list {
-        gap: 0.65rem;
+        gap: 0.4rem;
       }
 
       .state-badge {
-        width: min(100%, 29rem);
+        width: min(100%, 23rem);
         margin-inline: auto;
-        padding-block: 0.48rem;
-        font-size: clamp(1.35rem, 7vw, 2.4rem);
+        border-width: 0.18rem;
+        padding-block: 0.26rem;
+        font-size: clamp(0.85rem, 3.2vw, 1.2rem);
       }
 
       .state-badge:not(.active) {
@@ -154,7 +155,18 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
       .stands-row {
         justify-content: center;
-        font-size: clamp(1.55rem, 8vw, 2.8rem);
+        font-size: clamp(1rem, 4.2vw, 1.55rem);
+      }
+
+      .stands-row img {
+        width: clamp(1.9rem, 7vw, 2.6rem);
+        height: clamp(1.9rem, 7vw, 2.6rem);
+      }
+
+      .stands-toggle {
+        min-width: 3.7rem;
+        border-width: 0.18rem;
+        font-size: clamp(0.75rem, 2.6vw, 0.95rem);
       }
     }
   `,
