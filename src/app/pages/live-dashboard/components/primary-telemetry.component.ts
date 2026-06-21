@@ -6,41 +6,45 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   imports: [DecimalPipe],
   template: `
     <section class="primary-telemetry">
-      <article class="metric metric-lap">
-        <img src="assets/icons/ico_loop.png" alt="" />
-        <strong>{{ currentLap ?? '--' }}/{{ totalLaps ?? '--' }}</strong>
-        <span>Tours</span>
-      </article>
+      @if (variant !== 'speed') {
+        <article class="metric metric-lap">
+          <img src="assets/icons/ico_loop.png" alt="" />
+          <strong>{{ currentLap ?? '--' }}/{{ totalLaps ?? '--' }}</strong>
+          <span>Tours</span>
+        </article>
 
-      <article class="metric metric-time">
-        <img src="assets/icons/ico_timer.png" alt="" />
-        <strong>{{ chrono }}</strong>
-        <span>Chrono</span>
-      </article>
+        <article class="metric metric-time">
+          <img src="assets/icons/ico_timer.png" alt="" />
+          <strong>{{ chrono }}</strong>
+          <span>Chrono</span>
+        </article>
 
-      <article class="metric metric-ghost">
-        <img src="assets/icons/ghost_distance.png" alt="" />
-        <strong>{{ ghostDistance === null ? '--' : (ghostDistance | number: '1.0-0') }} m</strong>
-        <span>Ghost</span>
-      </article>
+        <article class="metric metric-ghost">
+          <img src="assets/icons/ghost_distance.png" alt="" />
+          <strong>{{ ghostDistance === null ? '--' : (ghostDistance | number: '1.0-0') }} m</strong>
+          <span>Ghost</span>
+        </article>
+      }
 
-      <article class="speed">
-        <strong>{{ speed ?? 0 | number: '1.0-1' }}</strong>
-        <span>km/h</span>
-      </article>
+      @if (variant !== 'cards') {
+        <article class="speed">
+          <strong>{{ speed ?? 0 | number: '1.0-1' }}</strong>
+          <span>km/h</span>
+        </article>
 
-      @if (pitStop === true) {
-        <article class="pit-exit">
+        <article class="pit-exit" [class.is-hidden]="pitStop !== true">
           <img src="assets/icons/ico_stands.png" alt="" />
           <strong>Sortie stands</strong>
         </article>
       }
 
-      <article class="metric metric-instruction">
-        <img src="assets/icons/ico_speed_meter.png" alt="" />
-        <strong>{{ instructionLabel }}</strong>
-        <span>Consigne</span>
-      </article>
+      @if (variant === 'all') {
+        <article class="metric metric-instruction">
+          <img src="assets/icons/ico_speed_meter.png" alt="" />
+          <strong>{{ instructionLabel }}</strong>
+          <span>Consigne</span>
+        </article>
+      }
     </section>
   `,
   styles: `
@@ -170,7 +174,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
       .speed {
         grid-column: 1 / -1;
-        min-height: clamp(7rem, 21vh, 10rem);
+        min-height: clamp(5.8rem, 16vh, 8rem);
         border: 0;
         background: transparent;
         box-shadow: none;
@@ -193,10 +197,15 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         align-items: center;
         justify-content: center;
         gap: 0.55rem;
-        margin-top: -0.45rem;
+        min-height: 2.65rem;
+        margin-top: -0.75rem;
         color: #ffffff;
         font-size: clamp(1.05rem, 4.6vw, 1.6rem);
         font-weight: 800;
+      }
+
+      .pit-exit.is-hidden {
+        visibility: hidden;
       }
 
       .pit-exit img {
@@ -209,6 +218,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrimaryTelemetryComponent {
+  @Input() variant: 'all' | 'cards' | 'speed' = 'all';
   @Input() currentLap: number | null = null;
   @Input() totalLaps: number | null = null;
   @Input() chrono = '--:--';

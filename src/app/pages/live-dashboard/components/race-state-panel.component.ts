@@ -6,8 +6,21 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   imports: [NgClass],
   template: `
     <section class="race-state-panel">
+      <div class="situation-panel">
+        <div class="panel-title">Situation de course :</div>
+        <div class="situation-row">
+          <img [src]="raceIcon" alt="" />
+          <span class="situation-badge" [ngClass]="'situation-' + raceStateKey">
+            {{ raceLabel }}
+          </span>
+        </div>
+      </div>
+
       <div class="state-list">
-        <span class="state-badge state-course" [ngClass]="{ active: raceStateKey === 'course' }">
+        <span
+          class="state-badge state-course"
+          [ngClass]="{ active: ['course', 'race', 'running'].includes(raceStateKey) }"
+        >
           Course
         </span>
         <span
@@ -43,6 +56,10 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       background: rgba(0, 15, 20, 0.38);
       padding: clamp(1rem, 3vw, 2rem);
       box-shadow: inset 0 0 2.2rem rgba(255, 255, 255, 0.04);
+    }
+
+    .situation-panel {
+      display: none;
     }
 
     .state-list {
@@ -128,28 +145,68 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .race-state-panel {
-        gap: 0.55rem;
-        border: 0;
-        border-top: 1px solid #f27032;
-        border-radius: 0;
-        background: transparent;
-        padding: 0.7rem 0 0;
+        border: 2px solid #f27032;
+        border-radius: 8px;
+        background: rgba(0, 18, 24, 0.18);
+        padding: 0.65rem 0.8rem 0.75rem;
         box-shadow: none;
       }
 
+      .situation-panel {
+        display: block;
+      }
+
+      .panel-title {
+        margin-bottom: 0.45rem;
+        color: #ffffff;
+        font-size: clamp(0.82rem, 3vw, 1rem);
+        font-weight: 800;
+      }
+
+      .situation-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .situation-row img {
+        width: clamp(2.4rem, 11vw, 3.4rem);
+        height: clamp(2.4rem, 11vw, 3.4rem);
+        object-fit: contain;
+      }
+
+      .situation-badge {
+        flex: 1 1 auto;
+        max-width: 13rem;
+        border-radius: 999px;
+        padding: 0.34rem 0.75rem 0.42rem;
+        color: #ffffff;
+        font-size: clamp(1rem, 4.4vw, 1.45rem);
+        font-weight: 800;
+        line-height: 1.1;
+        text-align: center;
+      }
+
+      .situation-course {
+        background: #00b807;
+      }
+
+      .situation-race,
+      .situation-running {
+        background: #00b807;
+      }
+
+      .situation-ne_pas_doubler,
+      .situation-no_overtaking {
+        background: #ffc400;
+        color: #ffffff;
+      }
+
+      .situation-stop {
+        background: #d40000;
+      }
+
       .state-list {
-        gap: 0.4rem;
-      }
-
-      .state-badge {
-        width: min(100%, 23rem);
-        margin-inline: auto;
-        border-width: 0.18rem;
-        padding-block: 0.26rem;
-        font-size: clamp(0.85rem, 3.2vw, 1.2rem);
-      }
-
-      .state-badge:not(.active) {
         display: none;
       }
 
@@ -163,4 +220,30 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 export class RaceStatePanelComponent {
   @Input() raceStateKey = 'unknown';
   @Input() pitStop: boolean | null = null;
+
+  get raceLabel(): string {
+    if (['course', 'race', 'running'].includes(this.raceStateKey)) {
+      return 'Course';
+    }
+    if (this.raceStateKey === 'ne_pas_doubler' || this.raceStateKey === 'no_overtaking') {
+      return 'Ne pas doubler';
+    }
+    if (this.raceStateKey === 'stop') {
+      return 'Stop';
+    }
+    return '--';
+  }
+
+  get raceIcon(): string {
+    if (['course', 'race', 'running'].includes(this.raceStateKey)) {
+      return 'assets/icons/flag_green.png';
+    }
+    if (this.raceStateKey === 'ne_pas_doubler' || this.raceStateKey === 'no_overtaking') {
+      return 'assets/icons/flag_yellow.png';
+    }
+    if (this.raceStateKey === 'stop') {
+      return 'assets/icons/flag_red.png';
+    }
+    return 'assets/icons/flag_orange.png';
+  }
 }

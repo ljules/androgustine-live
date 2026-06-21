@@ -33,6 +33,7 @@
         />
 
         <app-primary-telemetry
+          variant="cards"
           [currentLap]="vm.currentLap"
           [totalLaps]="vm.totalLaps"
           [chrono]="vm.chrono"
@@ -42,7 +43,18 @@
           [pitStop]="vm.pitStop"
         />
 
+        <div class="mobile-view-toggle" role="group" aria-label="Mode de carte">
+          <button type="button" class="active">Vue circuit</button>
+          <button type="button">Vue OSM</button>
+        </div>
+
         <app-track-map [trackPath]="vm.trackPath" [vehiclePoint]="vm.vehiclePoint" />
+
+        <app-primary-telemetry
+          variant="speed"
+          [speed]="vm.speed"
+          [pitStop]="vm.pitStop"
+        />
 
         <app-instruction-panel
           [instructionLabel]="vm.instructionLabel"

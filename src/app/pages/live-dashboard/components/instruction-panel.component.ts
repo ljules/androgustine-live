@@ -6,10 +6,12 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   imports: [NgClass],
   template: `
     <section class="instruction-panel">
-      <div class="command-badge" [ngClass]="'instruction-' + instructionKey">
-        <img src="assets/icons/ico_speed_meter.png" alt="" />
-        <span>Cadence :</span>
-        <strong>{{ instructionLabel }}</strong>
+      <div class="panel-title">Cadence de course :</div>
+      <div class="command-row">
+        <img class="command-icon" src="assets/icons/ico_speed_meter.png" alt="" />
+        <div class="command-badge" [ngClass]="'instruction-' + instructionKey">
+          <strong>{{ instructionLabel }}</strong>
+        </div>
       </div>
     </section>
   `,
@@ -26,11 +28,28 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       box-shadow: inset 0 0 2.2rem rgba(255, 255, 255, 0.04);
     }
 
-    .command-badge {
+    .panel-title {
+      margin-bottom: 0.7rem;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .command-row {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.7rem;
+    }
+
+    .command-icon {
+      width: 3.1rem;
+      height: 3.1rem;
+      object-fit: contain;
+    }
+
+    .command-badge {
+      flex: 1 1 auto;
       border: 0.25rem solid currentColor;
       border-radius: 999px;
       padding: 0.65rem 1rem;
@@ -38,17 +57,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       font-size: clamp(1.7rem, 5vw, 3rem);
       font-weight: 800;
       line-height: 1.1;
-    }
-
-    .command-badge img {
-      width: 1.2em;
-      height: 1.2em;
-      object-fit: contain;
-    }
-
-    .command-badge span {
-      font-size: 0.55em;
-      font-weight: 700;
     }
 
     .command-badge strong {
@@ -60,11 +68,23 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       color: #d40000;
     }
 
+    .instruction-accelerate {
+      color: #d40000;
+    }
+
     .instruction-maintenir {
       color: #00c90c;
     }
 
+    .instruction-maintain {
+      color: #00c90c;
+    }
+
     .instruction-ralentir {
+      color: #24f7ff;
+    }
+
+    .instruction-slow_down {
       color: #24f7ff;
     }
 
@@ -74,18 +94,33 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .instruction-panel {
-        border: 0;
-        background: transparent;
-        padding: 0.2rem 0;
+        border: 2px solid #f27032;
+        border-radius: 8px;
+        background: rgba(0, 18, 24, 0.18);
+        padding: 0.65rem 0.8rem 0.75rem;
         box-shadow: none;
       }
 
+      .panel-title {
+        margin-bottom: 0.45rem;
+        font-size: clamp(0.82rem, 3vw, 1rem);
+      }
+
+      .command-row {
+        justify-content: flex-start;
+        gap: 0.75rem;
+      }
+
+      .command-icon {
+        width: clamp(2.4rem, 11vw, 3.4rem);
+        height: clamp(2.4rem, 11vw, 3.4rem);
+      }
+
       .command-badge {
-        width: min(100%, 31rem);
-        margin-inline: auto;
+        max-width: 13rem;
         border-width: 0.26rem;
-        padding: 0.42rem 0.75rem 0.5rem;
-        font-size: clamp(1.35rem, 6vw, 2.2rem);
+        padding: 0.34rem 0.75rem 0.42rem;
+        font-size: clamp(1rem, 4.4vw, 1.45rem);
         color: #ffffff;
         text-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.45);
       }
@@ -95,12 +130,27 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         background: #d40000;
       }
 
+      .instruction-accelerate {
+        border-color: #d40000;
+        background: #d40000;
+      }
+
       .instruction-maintenir {
         border-color: #00c90c;
         background: #00b807;
       }
 
+      .instruction-maintain {
+        border-color: #00c90c;
+        background: #00b807;
+      }
+
       .instruction-ralentir {
+        border-color: #24f7ff;
+        background: #009dad;
+      }
+
+      .instruction-slow_down {
         border-color: #24f7ff;
         background: #009dad;
       }

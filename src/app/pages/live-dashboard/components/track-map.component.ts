@@ -111,7 +111,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .track-panel {
-        min-height: clamp(13rem, 38vh, 21rem);
+        min-height: clamp(11rem, 29vh, 16rem);
         border: 0;
         background: transparent;
         box-shadow: none;
@@ -122,7 +122,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .track-map {
-        width: min(86%, 30rem);
+        width: min(80%, 24rem);
       }
 
       .track-shadow {
