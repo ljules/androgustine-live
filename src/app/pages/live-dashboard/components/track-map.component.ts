@@ -31,7 +31,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
                 class="vehicle-dot"
                 [attr.cx]="osmMap.vehiclePoint.x"
                 [attr.cy]="osmMap.vehiclePoint.y"
-                r="7"
+                r="21"
               ></circle>
             }
             @if (osmMap.ghostPoint) {
@@ -39,7 +39,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
                 class="ghost-dot"
                 [attr.cx]="osmMap.ghostPoint.x"
                 [attr.cy]="osmMap.ghostPoint.y"
-                r="7"
+                r="21"
               ></circle>
             }
           </svg>
@@ -192,17 +192,22 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     }
 
     .vehicle-dot {
-      fill: #f27032;
+      fill: #e60000;
       stroke: #ffffff;
       stroke-width: 0.7;
-      filter: drop-shadow(0 0 0.35rem rgba(242, 112, 50, 0.9));
+      filter: drop-shadow(0 0 0.35rem rgba(230, 0, 0, 0.9));
     }
 
     .ghost-dot {
-      fill: #d79bdc;
+      fill: rgba(178, 65, 214, 0.52);
       stroke: #ffffff;
       stroke-width: 0.7;
-      filter: drop-shadow(0 0 0.35rem rgba(215, 155, 220, 0.88));
+      filter: drop-shadow(0 0 0.35rem rgba(178, 65, 214, 0.64));
+    }
+
+    .osm-map .vehicle-dot,
+    .osm-map .ghost-dot {
+      stroke-width: 4;
     }
 
     .track-empty,

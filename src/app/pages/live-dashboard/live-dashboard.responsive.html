@@ -33,8 +33,6 @@
           [rainProbability]="vm.rainProbability"
           [heartRate]="vm.heartRate"
           [energy]="vm.energy"
-          [ghostDistance]="vm.ghostDistance"
-          [deltaDistance]="vm.deltaDistance"
         />
 
         <app-primary-telemetry
@@ -44,7 +42,7 @@
           [chrono]="vm.chrono"
           [speed]="vm.speed"
           [instructionLabel]="vm.instructionLabel"
-          [ghostDistance]="vm.ghostDistance"
+          [ghostDistance]="vm.deltaDistance"
           [pitStop]="vm.pitStop"
         />
 
@@ -96,7 +94,7 @@
             [chrono]="vm.chrono"
             [speed]="vm.speed"
             [instructionLabel]="vm.instructionLabel"
-            [ghostDistance]="vm.ghostDistance"
+            [ghostDistance]="vm.deltaDistance"
             [pitStop]="vm.pitStop"
           />
         </div>
@@ -143,8 +141,6 @@
             [rainProbability]="vm.rainProbability"
             [heartRate]="vm.heartRate"
             [energy]="vm.energy"
-            [ghostDistance]="vm.ghostDistance"
-            [deltaDistance]="vm.deltaDistance"
           />
         </div>
       </section>

@@ -26,10 +26,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         <img src="assets/icons/ico_energy.png" alt="" />
         <strong>{{ energy ?? 0 | number: '1.0-0' }} J</strong>
       </article>
-      <article class="metric">
-        <img src="assets/icons/ghost_distance.png" alt="" />
-        <strong>{{ deltaDistance ?? '--' }} m</strong>
-      </article>
     </section>
   `,
   styles: `
@@ -129,6 +125,4 @@ export class SecondaryMetricsComponent {
   @Input() rainProbability: number | null = null;
   @Input() heartRate: number | null = null;
   @Input() energy: number | null = null;
-  @Input() ghostDistance: number | null = null;
-  @Input() deltaDistance: number | null = null;
 }

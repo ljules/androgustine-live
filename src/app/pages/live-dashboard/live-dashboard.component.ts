@@ -520,7 +520,8 @@ export class LiveDashboardComponent {
     const gpsLat = this.firstNumber(telemetry?.gpsLat);
     const gpsLon = this.firstNumber(telemetry?.gpsLon);
     if (gpsLat !== null && gpsLon !== null && trackPoints.length) {
-      return normalizedTrack.project({ lat: gpsLat, lon: gpsLon });
+      const projected = normalizedTrack.project({ lat: gpsLat, lon: gpsLon });
+      return this.nearestProjectedPoint(projected, normalizedTrack.points);
     }
 
     const snappedDistanceM = this.firstNumber(telemetry?.snappedDistanceM);
@@ -570,13 +571,15 @@ export class LiveDashboardComponent {
     const ghostLat = this.firstNumber(telemetry?.ghostLat, telemetry?.ghostGpsLat);
     const ghostLon = this.firstNumber(telemetry?.ghostLon, telemetry?.ghostGpsLon);
     if (ghostLat !== null && ghostLon !== null && trackPoints.length) {
-      return normalizedTrack.project({ lat: ghostLat, lon: ghostLon });
+      const projected = normalizedTrack.project({ lat: ghostLat, lon: ghostLon });
+      return this.nearestProjectedPoint(projected, normalizedTrack.points);
     }
 
     const ghostDistanceM = this.firstNumber(
       telemetry?.ghostSnappedDistanceM,
       telemetry?.ghostTrackDistanceM,
       telemetry?.ghostDistanceFromStartM,
+      this.derivedGhostDistance(telemetry),
     );
     const projectedPosition = this.positionAtDistance(
       trackPoints,
@@ -610,6 +613,30 @@ export class LiveDashboardComponent {
     }
 
     return normalizedTrack.project(position);
+  }
+
+  private nearestProjectedPoint<T extends { x: number; y: number }>(
+    point: { x: number; y: number } | null,
+    trackPoints: T[],
+  ): T | { x: number; y: number } | null {
+    if (!point || !trackPoints.length) {
+      return point;
+    }
+
+    return trackPoints.reduce((nearest, candidate) => {
+      const nearestDistance = this.squaredDistance(point, nearest);
+      const candidateDistance = this.squaredDistance(point, candidate);
+      return candidateDistance < nearestDistance ? candidate : nearest;
+    }, trackPoints[0]);
+  }
+
+  private squaredDistance(
+    first: { x: number; y: number },
+    second: { x: number; y: number },
+  ): number {
+    const dx = first.x - second.x;
+    const dy = first.y - second.y;
+    return dx * dx + dy * dy;
   }
 
   private pointX(point: TrackPoint | VehiclePosition): number | null {
@@ -865,8 +892,8 @@ export class LiveDashboardComponent {
       tiles,
       trackPath,
       trackSegments: this.strategySegmentsFromPoints(strategyDocument, activeStrategy, mapPoints),
-      vehiclePoint: this.osmVehiclePoint(telemetry, track, geoPoints, scale, originX, originY),
-      ghostPoint: this.osmGhostPoint(telemetry, track, geoPoints, scale, originX, originY),
+      vehiclePoint: this.osmVehiclePoint(telemetry, track, geoPoints, mapPoints, scale, originX, originY),
+      ghostPoint: this.osmGhostPoint(telemetry, track, geoPoints, mapPoints, scale, originX, originY),
     };
   }
 
@@ -874,6 +901,7 @@ export class LiveDashboardComponent {
     telemetry: Telemetry | null,
     track: TrackDocument | null,
     geoPoints: TrackPoint[],
+    mapPoints: ProjectedTrackPoint[],
     scale: number,
     originX: number,
     originY: number,
@@ -881,7 +909,10 @@ export class LiveDashboardComponent {
     const gpsLat = this.firstNumber(telemetry?.gpsLat);
     const gpsLon = this.firstNumber(telemetry?.gpsLon);
     if (gpsLat !== null && gpsLon !== null) {
-      return this.osmPoint(gpsLat, gpsLon, scale, originX, originY);
+      return this.nearestProjectedPoint(
+        this.osmPoint(gpsLat, gpsLon, scale, originX, originY),
+        mapPoints,
+      );
     }
 
     const snappedDistanceM = this.firstNumber(telemetry?.snappedDistanceM);
@@ -905,6 +936,7 @@ export class LiveDashboardComponent {
     telemetry: Telemetry | null,
     track: TrackDocument | null,
     geoPoints: TrackPoint[],
+    mapPoints: ProjectedTrackPoint[],
     scale: number,
     originX: number,
     originY: number,
@@ -912,13 +944,17 @@ export class LiveDashboardComponent {
     const ghostLat = this.firstNumber(telemetry?.ghostLat, telemetry?.ghostGpsLat);
     const ghostLon = this.firstNumber(telemetry?.ghostLon, telemetry?.ghostGpsLon);
     if (ghostLat !== null && ghostLon !== null) {
-      return this.osmPoint(ghostLat, ghostLon, scale, originX, originY);
+      return this.nearestProjectedPoint(
+        this.osmPoint(ghostLat, ghostLon, scale, originX, originY),
+        mapPoints,
+      );
     }
 
     const ghostDistanceM = this.firstNumber(
       telemetry?.ghostSnappedDistanceM,
       telemetry?.ghostTrackDistanceM,
       telemetry?.ghostDistanceFromStartM,
+      this.derivedGhostDistance(telemetry),
     );
     const projectedPosition = this.positionAtDistance(
       geoPoints,
@@ -928,6 +964,19 @@ export class LiveDashboardComponent {
     if (projectedPosition) {
       const lat = this.pointY(projectedPosition);
       const lon = this.pointX(projectedPosition);
+      if (lat !== null && lon !== null) {
+        return this.osmPoint(lat, lon, scale, originX, originY);
+      }
+    }
+
+    const topLevelGhostProgress = this.firstNumber(telemetry?.ghostProgress);
+    if (topLevelGhostProgress !== null && geoPoints.length) {
+      const index = Math.round(
+        Math.max(0, Math.min(1, topLevelGhostProgress)) * (geoPoints.length - 1),
+      );
+      const progressPosition = geoPoints[index];
+      const lat = this.pointY(progressPosition);
+      const lon = this.pointX(progressPosition);
       if (lat !== null && lon !== null) {
         return this.osmPoint(lat, lon, scale, originX, originY);
       }
@@ -975,6 +1024,16 @@ export class LiveDashboardComponent {
       x: point.x - originX,
       y: point.y - originY,
     };
+  }
+
+  private derivedGhostDistance(telemetry: Telemetry | null): number | null {
+    const snappedDistanceM = this.firstNumber(telemetry?.snappedDistanceM);
+    const deltaDistanceM = this.firstNumber(telemetry?.deltaDistanceM);
+    if (snappedDistanceM === null || deltaDistanceM === null) {
+      return null;
+    }
+
+    return snappedDistanceM + deltaDistanceM;
   }
 
   private osmProject(lat: number, lon: number, scale: number): { x: number; y: number } {
