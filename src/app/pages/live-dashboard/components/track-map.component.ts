@@ -8,6 +8,13 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         <svg viewBox="0 0 100 100" class="track-map" aria-label="Trace circuit">
           <path class="track-shadow" [attr.d]="trackPath"></path>
           <path class="track-line" [attr.d]="trackPath"></path>
+          @for (segment of trackSegments; track segment.path) {
+            <path
+              class="strategy-segment"
+              [attr.d]="segment.path"
+              [attr.stroke]="segment.color"
+            ></path>
+          }
           @if (vehiclePoint) {
             <circle
               class="vehicle-dot"
@@ -97,6 +104,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       stroke-width: 3.3;
     }
 
+    .strategy-segment {
+      position: relative;
+      fill: none;
+      stroke-width: 3.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     .vehicle-dot {
       fill: #f27032;
       stroke: #ffffff;
@@ -147,6 +162,10 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         stroke-width: 4;
       }
 
+      .strategy-segment {
+        stroke-width: 4.6;
+      }
+
       .position-note {
         bottom: 0.45rem;
         color: #ffffff;
@@ -159,5 +178,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 })
 export class TrackMapComponent {
   @Input() trackPath: string | null = null;
+  @Input() trackSegments: Array<{ path: string; color: string }> = [];
   @Input() vehiclePoint: { x: number; y: number } | null = null;
 }

@@ -5,6 +5,7 @@ import {
   CopilotInstruction,
   RaceState,
   RaceSessionDocument,
+  StrategySegment,
   StrategyMode,
   StrategyDocument,
   Telemetry,
@@ -56,8 +57,19 @@ interface DashboardViewModel {
   raceStateKey: string;
   pitStop: boolean | null;
   trackPath: string | null;
+  trackSegments: TrackSegmentPath[];
   vehiclePoint: { x: number; y: number } | null;
   hasUsableData: boolean;
+}
+
+interface NormalizedTrack {
+  points: Array<{ x: number; y: number; distanceM: number | null; source: TrackPoint }>;
+  project: (point: TrackPoint | VehiclePosition) => { x: number; y: number } | null;
+}
+
+interface TrackSegmentPath {
+  path: string;
+  color: string;
 }
 
 @Component({
@@ -200,7 +212,8 @@ export class LiveDashboardComponent {
         telemetry?.copilot?.pitStop,
         telemetry?.copilot?.stands,
       );
-      const trackPath = this.pathFromPoints(normalizedTrack);
+      const trackPath = this.pathFromPoints(normalizedTrack.points, true);
+      const trackSegments = this.strategySegments(strategyDocument, strategy, normalizedTrack);
       const vehiclePoint = this.vehiclePoint(telemetry, track, trackPoints, normalizedTrack);
 
       const vm: DashboardViewModel = {
@@ -236,6 +249,7 @@ export class LiveDashboardComponent {
         raceStateKey: this.normalizedKey(raceState),
         pitStop,
         trackPath,
+        trackSegments,
         vehiclePoint,
         hasUsableData: false,
       };
@@ -379,14 +393,29 @@ export class LiveDashboardComponent {
     ).filter((point) => this.pointX(point) !== null && this.pointY(point) !== null);
   }
 
-  private normalizeTrack(points: TrackPoint[]): Array<{ x: number; y: number }> {
+  private normalizeTrack(points: TrackPoint[]): NormalizedTrack {
     if (!points.length) {
-      return [];
+      return {
+        points: [],
+        project: () => null,
+      };
     }
 
+    const usesGeoCoordinates = points.every(
+      (point) =>
+        this.firstNumber(point.x) === null &&
+        this.firstNumber(point.y) === null &&
+        this.pointX(point) !== null &&
+        this.pointY(point) !== null,
+    );
+    const meanLatitude =
+      points.reduce((sum, point) => sum + (this.pointY(point) ?? 0), 0) / points.length;
+    const longitudeScale = usesGeoCoordinates ? Math.cos((meanLatitude * Math.PI) / 180) : 1;
     const rawPoints = points.map((point) => ({
-      x: this.pointX(point) ?? 0,
+      x: (this.pointX(point) ?? 0) * longitudeScale,
       y: this.pointY(point) ?? 0,
+      distanceM: this.firstNumber(point.distanceM),
+      source: point,
     }));
     const xs = rawPoints.map((point) => point.x);
     const ys = rawPoints.map((point) => point.y);
@@ -396,14 +425,35 @@ export class LiveDashboardComponent {
     const maxY = Math.max(...ys);
     const width = maxX - minX || 1;
     const height = maxY - minY || 1;
+    const scale = 84 / Math.max(width, height);
+    const offsetX = (100 - width * scale) / 2;
+    const offsetY = (100 - height * scale) / 2;
 
-    return rawPoints.map((point) => ({
-      x: 8 + ((point.x - minX) / width) * 84,
-      y: 8 + ((point.y - minY) / height) * 84,
-    }));
+    const project = (point: TrackPoint | VehiclePosition): { x: number; y: number } | null => {
+      const x = this.pointX(point);
+      const y = this.pointY(point);
+      if (x === null || y === null) {
+        return null;
+      }
+
+      return {
+        x: offsetX + (x * longitudeScale - minX) * scale,
+        y: offsetY + (y - minY) * scale,
+      };
+    };
+
+    return {
+      points: rawPoints.map((point) => ({
+        x: offsetX + (point.x - minX) * scale,
+        y: offsetY + (point.y - minY) * scale,
+        distanceM: point.distanceM,
+        source: point.source,
+      })),
+      project,
+    };
   }
 
-  private pathFromPoints(points: Array<{ x: number; y: number }>): string | null {
+  private pathFromPoints(points: Array<{ x: number; y: number }>, close = false): string | null {
     if (points.length < 2) {
       return null;
     }
@@ -412,7 +462,7 @@ export class LiveDashboardComponent {
     return [
       `M ${firstPoint.x.toFixed(2)} ${firstPoint.y.toFixed(2)}`,
       ...rest.map((point) => `L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`),
-      'Z',
+      close ? 'Z' : '',
     ].join(' ');
   }
 
@@ -420,13 +470,12 @@ export class LiveDashboardComponent {
     telemetry: Telemetry | null,
     track: TrackDocument | null,
     trackPoints: TrackPoint[],
-    normalizedTrack: Array<{ x: number; y: number }>,
+    normalizedTrack: NormalizedTrack,
   ): { x: number; y: number } | null {
     const gpsLat = this.firstNumber(telemetry?.gpsLat);
     const gpsLon = this.firstNumber(telemetry?.gpsLon);
     if (gpsLat !== null && gpsLon !== null && trackPoints.length) {
-      const normalized = this.normalizeTrack([...trackPoints, { lat: gpsLat, lon: gpsLon }]);
-      return normalized[normalized.length - 1] ?? null;
+      return normalizedTrack.project({ lat: gpsLat, lon: gpsLon });
     }
 
     const snappedDistanceM = this.firstNumber(telemetry?.snappedDistanceM);
@@ -436,8 +485,7 @@ export class LiveDashboardComponent {
       track?.totalDistanceM,
     );
     if (projectedPosition) {
-      const normalized = this.normalizeTrack([...trackPoints, projectedPosition]);
-      return normalized[normalized.length - 1] ?? null;
+      return normalizedTrack.project(projectedPosition);
     }
 
     const position =
@@ -452,11 +500,11 @@ export class LiveDashboardComponent {
       return null;
     }
 
-    if (typeof position.progress === 'number' && normalizedTrack.length) {
+    if (typeof position.progress === 'number' && normalizedTrack.points.length) {
       const index = Math.round(
-        Math.max(0, Math.min(1, position.progress)) * (normalizedTrack.length - 1),
+        Math.max(0, Math.min(1, position.progress)) * (normalizedTrack.points.length - 1),
       );
-      return normalizedTrack[index];
+      return normalizedTrack.points[index];
     }
 
     const positionX = this.pointX(position);
@@ -465,9 +513,7 @@ export class LiveDashboardComponent {
       return null;
     }
 
-    const allPoints = [...trackPoints, position];
-    const normalized = this.normalizeTrack(allPoints);
-    return normalized[normalized.length - 1] ?? null;
+    return normalizedTrack.project(position);
   }
 
   private pointX(point: TrackPoint | VehiclePosition): number | null {
@@ -495,6 +541,163 @@ export class LiveDashboardComponent {
       vm.trackPath,
       vm.vehiclePoint,
     ].some((value) => value !== null && value !== undefined);
+  }
+
+  private strategySegments(
+    strategyDocument: StrategyDocument | null,
+    activeStrategy: StrategyMode | null,
+    normalizedTrack: NormalizedTrack,
+  ): TrackSegmentPath[] {
+    if (!strategyDocument || normalizedTrack.points.length < 2) {
+      return [];
+    }
+
+    const key = this.normalizedKey(activeStrategy);
+    const sourceSegments =
+      key === 'depart' || key === 'start'
+        ? strategyDocument.startSegments
+        : strategyDocument.raceSegments ?? strategyDocument.startSegments;
+
+    return (sourceSegments ?? [])
+      .map((segment) => this.segmentPath(segment, normalizedTrack))
+      .filter((segment): segment is TrackSegmentPath => segment !== null);
+  }
+
+  private segmentPath(
+    segment: StrategySegment,
+    normalizedTrack: NormalizedTrack,
+  ): TrackSegmentPath | null {
+    const startDistance = this.firstNumber(
+      segment.startDistanceM,
+      segment.fromDistanceM,
+      segment.distanceStartM,
+      segment.beginDistanceM,
+    );
+    const endDistance = this.firstNumber(
+      segment.endDistanceM,
+      segment.toDistanceM,
+      segment.distanceEndM,
+      segment.finishDistanceM,
+    );
+    if (startDistance === null || endDistance === null || startDistance === endDistance) {
+      return null;
+    }
+
+    const points = this.segmentPointsByDistance(normalizedTrack.points, startDistance, endDistance);
+    const path = this.pathFromPoints(points);
+    if (!path) {
+      return null;
+    }
+
+    return {
+      path,
+      color: this.segmentColor(segment),
+    };
+  }
+
+  private segmentPointsByDistance(
+    points: NormalizedTrack['points'],
+    startDistance: number,
+    endDistance: number,
+  ): Array<{ x: number; y: number }> {
+    const sorted = [...points]
+      .filter((point) => point.distanceM !== null)
+      .sort((a, b) => (a.distanceM ?? 0) - (b.distanceM ?? 0));
+    if (sorted.length < 2) {
+      return [];
+    }
+
+    const start = Math.min(startDistance, endDistance);
+    const end = Math.max(startDistance, endDistance);
+    const result: Array<{ x: number; y: number }> = [];
+    const startPoint = this.pointAtNormalizedDistance(sorted, start);
+    if (startPoint) {
+      result.push(startPoint);
+    }
+
+    for (const point of sorted) {
+      const distance = point.distanceM ?? 0;
+      if (distance > start && distance < end) {
+        result.push(point);
+      }
+    }
+
+    const endPoint = this.pointAtNormalizedDistance(sorted, end);
+    if (endPoint) {
+      result.push(endPoint);
+    }
+
+    return result;
+  }
+
+  private pointAtNormalizedDistance(
+    points: NormalizedTrack['points'],
+    distance: number,
+  ): { x: number; y: number } | null {
+    const first = points[0];
+    const last = points[points.length - 1];
+    const firstDistance = first.distanceM ?? 0;
+    const lastDistance = last.distanceM ?? firstDistance;
+
+    if (distance <= firstDistance) {
+      return first;
+    }
+    if (distance >= lastDistance) {
+      return last;
+    }
+
+    const nextIndex = points.findIndex((point) => (point.distanceM ?? 0) >= distance);
+    const previous = points[nextIndex - 1];
+    const next = points[nextIndex];
+    const previousDistance = previous.distanceM ?? 0;
+    const nextDistance = next.distanceM ?? previousDistance;
+    const span = nextDistance - previousDistance;
+    if (span <= 0) {
+      return previous;
+    }
+
+    const ratio = (distance - previousDistance) / span;
+    return {
+      x: previous.x + (next.x - previous.x) * ratio,
+      y: previous.y + (next.y - previous.y) * ratio,
+    };
+  }
+
+  private segmentColor(segment: {
+    color?: string;
+    segmentColor?: string;
+    colorKey?: string;
+    kind?: string;
+    type?: string;
+    label?: string;
+  }): string {
+    const rawColor =
+      segment.color ??
+      segment.segmentColor ??
+      segment.colorKey ??
+      segment.kind ??
+      segment.type ??
+      segment.label ??
+      '';
+    const key = this.normalizedKey(rawColor);
+    const colors: Record<string, string> = {
+      blue: '#58a6ff',
+      bleu: '#58a6ff',
+      green: '#43d17a',
+      vert: '#43d17a',
+      yellow: '#ffc61a',
+      jaune: '#ffc61a',
+      red: '#e60000',
+      rouge: '#e60000',
+      cyan: '#19e7ef',
+      turquoise: '#19e7ef',
+    };
+
+    if (/^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(rawColor)) {
+      return rawColor;
+    }
+
+    return colors[key] ?? '#f27032';
   }
 
   private positionAtDistance(
