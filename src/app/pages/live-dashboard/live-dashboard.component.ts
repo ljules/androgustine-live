@@ -425,7 +425,7 @@ export class LiveDashboardComponent {
     const maxY = Math.max(...ys);
     const width = maxX - minX || 1;
     const height = maxY - minY || 1;
-    const scale = 84 / Math.max(width, height);
+    const scale = 94 / Math.max(width, height);
     const offsetX = (100 - width * scale) / 2;
     const offsetY = (100 - height * scale) / 2;
 
@@ -438,14 +438,14 @@ export class LiveDashboardComponent {
 
       return {
         x: offsetX + (x * longitudeScale - minX) * scale,
-        y: offsetY + (y - minY) * scale,
+        y: offsetY + (maxY - y) * scale,
       };
     };
 
     return {
       points: rawPoints.map((point) => ({
         x: offsetX + (point.x - minX) * scale,
-        y: offsetY + (point.y - minY) * scale,
+        y: offsetY + (maxY - point.y) * scale,
         distanceM: point.distanceM,
         source: point.source,
       })),

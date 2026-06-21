@@ -80,7 +80,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     .track-map {
       position: relative;
-      width: min(92%, 52rem);
+      width: min(98%, 60rem);
       height: auto;
       aspect-ratio: 1.8;
       overflow: visible;
@@ -151,7 +151,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .track-map {
-        width: min(80%, 24rem);
+        width: min(96%, 32rem);
       }
 
       .track-shadow {
