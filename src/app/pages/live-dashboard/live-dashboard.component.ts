@@ -1,5 +1,5 @@
 import { AsyncPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { map } from 'rxjs';
 import {
   CopilotInstruction,
@@ -58,18 +58,40 @@ interface DashboardViewModel {
   pitStop: boolean | null;
   trackPath: string | null;
   trackSegments: TrackSegmentPath[];
+  osmMap: OsmTrackMap | null;
   vehiclePoint: { x: number; y: number } | null;
   hasUsableData: boolean;
 }
 
 interface NormalizedTrack {
-  points: Array<{ x: number; y: number; distanceM: number | null; source: TrackPoint }>;
+  points: ProjectedTrackPoint[];
   project: (point: TrackPoint | VehiclePosition) => { x: number; y: number } | null;
 }
 
 interface TrackSegmentPath {
   path: string;
   color: string;
+}
+
+interface ProjectedTrackPoint {
+  x: number;
+  y: number;
+  distanceM: number | null;
+}
+
+interface OsmTile {
+  url: string;
+  x: number;
+  y: number;
+  size: number;
+}
+
+interface OsmTrackMap {
+  viewBox: string;
+  tiles: OsmTile[];
+  trackPath: string;
+  trackSegments: TrackSegmentPath[];
+  vehiclePoint: { x: number; y: number } | null;
 }
 
 @Component({
@@ -91,6 +113,7 @@ interface TrackSegmentPath {
 })
 export class LiveDashboardComponent {
   readonly debug = false;
+  readonly mapMode = signal<'circuit' | 'osm'>('circuit');
   private readonly telemetryService = inject(TelemetryService);
 
   readonly vm$ = this.telemetryService.latest$.pipe(
@@ -215,6 +238,7 @@ export class LiveDashboardComponent {
       const trackPath = this.pathFromPoints(normalizedTrack.points, true);
       const trackSegments = this.strategySegments(strategyDocument, strategy, normalizedTrack);
       const vehiclePoint = this.vehiclePoint(telemetry, track, trackPoints, normalizedTrack);
+      const osmMap = this.osmMap(trackPoints, telemetry, track, strategyDocument, strategy);
 
       const vm: DashboardViewModel = {
         telemetry,
@@ -250,6 +274,7 @@ export class LiveDashboardComponent {
         pitStop,
         trackPath,
         trackSegments,
+        osmMap,
         vehiclePoint,
         hasUsableData: false,
       };
@@ -288,6 +313,10 @@ export class LiveDashboardComponent {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-zA-Z0-9]+/g, '_')
       .toLowerCase();
+  }
+
+  setMapMode(mode: 'circuit' | 'osm'): void {
+    this.mapMode.set(mode);
   }
 
   private label(value: string | null, knownLabels: Record<string, string>): string {
@@ -447,7 +476,6 @@ export class LiveDashboardComponent {
         x: offsetX + (point.x - minX) * scale,
         y: offsetY + (maxY - point.y) * scale,
         distanceM: point.distanceM,
-        source: point.source,
       })),
       project,
     };
@@ -548,7 +576,15 @@ export class LiveDashboardComponent {
     activeStrategy: StrategyMode | null,
     normalizedTrack: NormalizedTrack,
   ): TrackSegmentPath[] {
-    if (!strategyDocument || normalizedTrack.points.length < 2) {
+    return this.strategySegmentsFromPoints(strategyDocument, activeStrategy, normalizedTrack.points);
+  }
+
+  private strategySegmentsFromPoints(
+    strategyDocument: StrategyDocument | null,
+    activeStrategy: StrategyMode | null,
+    points: ProjectedTrackPoint[],
+  ): TrackSegmentPath[] {
+    if (!strategyDocument || points.length < 2) {
       return [];
     }
 
@@ -559,14 +595,11 @@ export class LiveDashboardComponent {
         : strategyDocument.raceSegments ?? strategyDocument.startSegments;
 
     return (sourceSegments ?? [])
-      .map((segment) => this.segmentPath(segment, normalizedTrack))
+      .map((segment) => this.segmentPath(segment, points))
       .filter((segment): segment is TrackSegmentPath => segment !== null);
   }
 
-  private segmentPath(
-    segment: StrategySegment,
-    normalizedTrack: NormalizedTrack,
-  ): TrackSegmentPath | null {
+  private segmentPath(segment: StrategySegment, points: ProjectedTrackPoint[]): TrackSegmentPath | null {
     const startDistance = this.firstNumber(
       segment.startDistanceM,
       segment.fromDistanceM,
@@ -583,8 +616,8 @@ export class LiveDashboardComponent {
       return null;
     }
 
-    const points = this.segmentPointsByDistance(normalizedTrack.points, startDistance, endDistance);
-    const path = this.pathFromPoints(points);
+    const segmentPoints = this.segmentPointsByDistance(points, startDistance, endDistance);
+    const path = this.pathFromPoints(segmentPoints);
     if (!path) {
       return null;
     }
@@ -596,7 +629,7 @@ export class LiveDashboardComponent {
   }
 
   private segmentPointsByDistance(
-    points: NormalizedTrack['points'],
+    points: ProjectedTrackPoint[],
     startDistance: number,
     endDistance: number,
   ): Array<{ x: number; y: number }> {
@@ -631,7 +664,7 @@ export class LiveDashboardComponent {
   }
 
   private pointAtNormalizedDistance(
-    points: NormalizedTrack['points'],
+    points: ProjectedTrackPoint[],
     distance: number,
   ): { x: number; y: number } | null {
     const first = points[0];
@@ -698,6 +731,168 @@ export class LiveDashboardComponent {
     }
 
     return colors[key] ?? '#f27032';
+  }
+
+  private osmMap(
+    trackPoints: TrackPoint[],
+    telemetry: Telemetry | null,
+    track: TrackDocument | null,
+    strategyDocument: StrategyDocument | null,
+    activeStrategy: StrategyMode | null,
+  ): OsmTrackMap | null {
+    const geoPoints = trackPoints.filter(
+      (point) =>
+        this.firstNumber(point.lat, point.latitude) !== null &&
+        this.firstNumber(point.lon, point.lng, point.longitude) !== null,
+    );
+    if (geoPoints.length < 2) {
+      return null;
+    }
+
+    const latitudes = geoPoints.map((point) => this.pointY(point) ?? 0);
+    const longitudes = geoPoints.map((point) => this.pointX(point) ?? 0);
+    const minLat = Math.min(...latitudes);
+    const maxLat = Math.max(...latitudes);
+    const minLon = Math.min(...longitudes);
+    const maxLon = Math.max(...longitudes);
+    const zoom = this.osmZoom(maxLat - minLat, maxLon - minLon);
+    const scale = 2 ** zoom;
+    const projected = geoPoints.map((point) => {
+      const lat = this.pointY(point) ?? 0;
+      const lon = this.pointX(point) ?? 0;
+      const mercator = this.osmProject(lat, lon, scale);
+      return {
+        x: mercator.x,
+        y: mercator.y,
+        distanceM: this.firstNumber(point.distanceM),
+      };
+    });
+    const xs = projected.map((point) => point.x);
+    const ys = projected.map((point) => point.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const width = maxX - minX || 1;
+    const height = maxY - minY || 1;
+    const padding = Math.max(80, Math.max(width, height) * 0.18);
+    const originX = Math.floor((minX - padding) / 256) * 256;
+    const originY = Math.floor((minY - padding) / 256) * 256;
+    const endX = Math.ceil((maxX + padding) / 256) * 256;
+    const endY = Math.ceil((maxY + padding) / 256) * 256;
+    const tiles = this.osmTiles(originX, originY, endX, endY, zoom);
+    const mapPoints = projected.map((point) => ({
+      x: point.x - originX,
+      y: point.y - originY,
+      distanceM: point.distanceM,
+    }));
+    const trackPath = this.pathFromPoints(mapPoints, true);
+    if (!trackPath) {
+      return null;
+    }
+
+    return {
+      viewBox: `0 0 ${endX - originX} ${endY - originY}`,
+      tiles,
+      trackPath,
+      trackSegments: this.strategySegmentsFromPoints(strategyDocument, activeStrategy, mapPoints),
+      vehiclePoint: this.osmVehiclePoint(telemetry, track, geoPoints, scale, originX, originY),
+    };
+  }
+
+  private osmVehiclePoint(
+    telemetry: Telemetry | null,
+    track: TrackDocument | null,
+    geoPoints: TrackPoint[],
+    scale: number,
+    originX: number,
+    originY: number,
+  ): { x: number; y: number } | null {
+    const gpsLat = this.firstNumber(telemetry?.gpsLat);
+    const gpsLon = this.firstNumber(telemetry?.gpsLon);
+    if (gpsLat !== null && gpsLon !== null) {
+      return this.osmPoint(gpsLat, gpsLon, scale, originX, originY);
+    }
+
+    const snappedDistanceM = this.firstNumber(telemetry?.snappedDistanceM);
+    const projectedPosition = this.positionAtDistance(
+      geoPoints,
+      snappedDistanceM,
+      track?.totalDistanceM,
+    );
+    if (projectedPosition) {
+      const lat = this.pointY(projectedPosition);
+      const lon = this.pointX(projectedPosition);
+      if (lat !== null && lon !== null) {
+        return this.osmPoint(lat, lon, scale, originX, originY);
+      }
+    }
+
+    return null;
+  }
+
+  private osmPoint(
+    lat: number,
+    lon: number,
+    scale: number,
+    originX: number,
+    originY: number,
+  ): { x: number; y: number } {
+    const point = this.osmProject(lat, lon, scale);
+    return {
+      x: point.x - originX,
+      y: point.y - originY,
+    };
+  }
+
+  private osmProject(lat: number, lon: number, scale: number): { x: number; y: number } {
+    const sinLat = Math.sin((Math.max(-85.05112878, Math.min(85.05112878, lat)) * Math.PI) / 180);
+    return {
+      x: ((lon + 180) / 360) * 256 * scale,
+      y:
+        (0.5 - Math.log((1 + sinLat) / (1 - sinLat)) / (4 * Math.PI)) *
+        256 *
+        scale,
+    };
+  }
+
+  private osmZoom(latSpan: number, lonSpan: number): number {
+    const span = Math.max(Math.abs(latSpan), Math.abs(lonSpan));
+    if (span > 0.08) {
+      return 14;
+    }
+    if (span > 0.025) {
+      return 16;
+    }
+    return 18;
+  }
+
+  private osmTiles(
+    originX: number,
+    originY: number,
+    endX: number,
+    endY: number,
+    zoom: number,
+  ): OsmTile[] {
+    const tiles: OsmTile[] = [];
+    const scale = 2 ** zoom;
+    const minTileX = Math.max(0, Math.floor(originX / 256));
+    const minTileY = Math.max(0, Math.floor(originY / 256));
+    const maxTileX = Math.min(scale - 1, Math.ceil(endX / 256) - 1);
+    const maxTileY = Math.min(scale - 1, Math.ceil(endY / 256) - 1);
+
+    for (let tileY = minTileY; tileY <= maxTileY; tileY += 1) {
+      for (let tileX = minTileX; tileX <= maxTileX; tileX += 1) {
+        tiles.push({
+          url: `https://tile.openstreetmap.org/${zoom}/${tileX}/${tileY}.png`,
+          x: tileX * 256 - originX,
+          y: tileY * 256 - originY,
+          size: 256,
+        });
+      }
+    }
+
+    return tiles;
   }
 
   private positionAtDistance(

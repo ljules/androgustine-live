@@ -4,7 +4,43 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   selector: 'app-track-map',
   template: `
     <section class="track-panel">
-      @if (trackPath) {
+      @if (mode === 'osm') {
+        @if (osmMap) {
+          <svg [attr.viewBox]="osmMap.viewBox" class="track-map osm-map" aria-label="Carte OSM du circuit">
+            @for (tile of osmMap.tiles; track tile.url) {
+              <image
+                class="osm-tile"
+                [attr.href]="tile.url"
+                [attr.x]="tile.x"
+                [attr.y]="tile.y"
+                [attr.width]="tile.size"
+                [attr.height]="tile.size"
+              ></image>
+            }
+            <path class="osm-track-halo" [attr.d]="osmMap.trackPath"></path>
+            <path class="osm-track-line" [attr.d]="osmMap.trackPath"></path>
+            @for (segment of osmMap.trackSegments; track segment.path) {
+              <path
+                class="strategy-segment osm-strategy-segment"
+                [attr.d]="segment.path"
+                [attr.stroke]="segment.color"
+              ></path>
+            }
+            @if (osmMap.vehiclePoint) {
+              <circle
+                class="vehicle-dot"
+                [attr.cx]="osmMap.vehiclePoint.x"
+                [attr.cy]="osmMap.vehiclePoint.y"
+                r="7"
+              ></circle>
+            }
+          </svg>
+        } @else {
+          <div class="track-empty">
+            <span>Carte OSM indisponible</span>
+          </div>
+        }
+      } @else if (trackPath) {
         <svg viewBox="0 0 100 100" class="track-map" aria-label="Trace circuit">
           <path class="track-shadow" [attr.d]="trackPath"></path>
           <path class="track-line" [attr.d]="trackPath"></path>
@@ -30,7 +66,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         </div>
       }
 
-      @if (!vehiclePoint) {
+      @if (mode === 'osm' ? !osmMap?.vehiclePoint : !vehiclePoint) {
         <p class="position-note">Position vehicule non disponible</p>
       }
     </section>
@@ -87,7 +123,9 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     }
 
     .track-shadow,
-    .track-line {
+    .track-line,
+    .osm-track-halo,
+    .osm-track-line {
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
@@ -104,12 +142,37 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       stroke-width: 3.3;
     }
 
+    .osm-map {
+      border-radius: 6px;
+      background: #d5d9d4;
+      box-shadow: 0 0 1.2rem rgba(0, 0, 0, 0.32);
+      overflow: hidden;
+    }
+
+    .osm-tile {
+      image-rendering: auto;
+    }
+
+    .osm-track-halo {
+      stroke: rgba(255, 255, 255, 0.88);
+      stroke-width: 48;
+    }
+
+    .osm-track-line {
+      stroke: #050505;
+      stroke-width: 24;
+    }
+
     .strategy-segment {
       position: relative;
       fill: none;
       stroke-width: 3.8;
       stroke-linecap: round;
       stroke-linejoin: round;
+    }
+
+    .osm-strategy-segment {
+      stroke-width: 27;
     }
 
     .vehicle-dot {
@@ -166,6 +229,18 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         stroke-width: 4.6;
       }
 
+      .osm-track-halo {
+        stroke-width: 54;
+      }
+
+      .osm-track-line {
+        stroke-width: 30;
+      }
+
+      .osm-strategy-segment {
+        stroke-width: 33;
+      }
+
       .position-note {
         bottom: 0.45rem;
         color: #ffffff;
@@ -177,7 +252,15 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TrackMapComponent {
+  @Input() mode: 'circuit' | 'osm' = 'circuit';
   @Input() trackPath: string | null = null;
   @Input() trackSegments: Array<{ path: string; color: string }> = [];
+  @Input() osmMap: {
+    viewBox: string;
+    tiles: Array<{ url: string; x: number; y: number; size: number }>;
+    trackPath: string;
+    trackSegments: Array<{ path: string; color: string }>;
+    vehiclePoint: { x: number; y: number } | null;
+  } | null = null;
   @Input() vehiclePoint: { x: number; y: number } | null = null;
 }

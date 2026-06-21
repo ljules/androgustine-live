@@ -49,13 +49,27 @@
         />
 
         <div class="mobile-view-toggle" role="group" aria-label="Mode de carte">
-          <button type="button" class="active">Vue circuit</button>
-          <button type="button">Vue OSM</button>
+          <button
+            type="button"
+            [class.active]="mapMode() === 'circuit'"
+            (click)="setMapMode('circuit')"
+          >
+            Vue circuit
+          </button>
+          <button
+            type="button"
+            [class.active]="mapMode() === 'osm'"
+            (click)="setMapMode('osm')"
+          >
+            Vue OSM
+          </button>
         </div>
 
         <app-track-map
+          [mode]="mapMode()"
           [trackPath]="vm.trackPath"
           [trackSegments]="vm.trackSegments"
+          [osmMap]="vm.osmMap"
           [vehiclePoint]="vm.vehiclePoint"
         />
 
@@ -88,12 +102,26 @@
 
         <div class="track-zone">
           <div class="desktop-view-toggle" role="group" aria-label="Mode de carte">
-            <button type="button" class="active">Vue circuit</button>
-            <button type="button">Vue OSM</button>
+            <button
+              type="button"
+              [class.active]="mapMode() === 'circuit'"
+              (click)="setMapMode('circuit')"
+            >
+              Vue circuit
+            </button>
+            <button
+              type="button"
+              [class.active]="mapMode() === 'osm'"
+              (click)="setMapMode('osm')"
+            >
+              Vue OSM
+            </button>
           </div>
           <app-track-map
+            [mode]="mapMode()"
             [trackPath]="vm.trackPath"
             [trackSegments]="vm.trackSegments"
+            [osmMap]="vm.osmMap"
             [vehiclePoint]="vm.vehiclePoint"
           />
         </div>
