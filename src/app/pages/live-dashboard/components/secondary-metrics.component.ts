@@ -79,13 +79,13 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 767.98px) {
       .secondary-metrics {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 0;
         border-block: 1px solid #f27032;
         padding-block: 0.55rem;
       }
 
-      .metric:nth-child(n + 4) {
+      .metric:nth-child(n + 5) {
         display: none;
       }
 
@@ -105,8 +105,13 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         text-align: center;
       }
 
+      .metric img {
+        width: 1.15rem;
+        height: 1.15rem;
+      }
+
       .metric strong {
-        font-size: clamp(0.95rem, 4.4vw, 1.25rem);
+        font-size: clamp(0.74rem, 3.45vw, 1.08rem);
       }
     }
   `,

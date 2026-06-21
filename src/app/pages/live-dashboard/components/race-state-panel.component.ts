@@ -154,19 +154,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .stands-row {
-        justify-content: center;
-        font-size: clamp(1rem, 4.2vw, 1.55rem);
-      }
-
-      .stands-row img {
-        width: clamp(1.9rem, 7vw, 2.6rem);
-        height: clamp(1.9rem, 7vw, 2.6rem);
-      }
-
-      .stands-toggle {
-        min-width: 3.7rem;
-        border-width: 0.18rem;
-        font-size: clamp(0.75rem, 2.6vw, 0.95rem);
+        display: none;
       }
     }
   `,

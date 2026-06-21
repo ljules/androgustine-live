@@ -22,14 +22,6 @@
       }
 
       <section class="mobile-layout d-lg-none">
-        <app-primary-telemetry
-          [currentLap]="vm.currentLap"
-          [totalLaps]="vm.totalLaps"
-          [chrono]="vm.chrono"
-          [speed]="vm.speed"
-          [instructionLabel]="vm.instructionLabel"
-        />
-
         <app-secondary-metrics
           [temperature]="vm.temperature"
           [windSpeed]="vm.windSpeed"
@@ -38,6 +30,16 @@
           [energy]="vm.energy"
           [ghostDistance]="vm.ghostDistance"
           [deltaDistance]="vm.deltaDistance"
+        />
+
+        <app-primary-telemetry
+          [currentLap]="vm.currentLap"
+          [totalLaps]="vm.totalLaps"
+          [chrono]="vm.chrono"
+          [speed]="vm.speed"
+          [instructionLabel]="vm.instructionLabel"
+          [ghostDistance]="vm.ghostDistance"
+          [pitStop]="vm.pitStop"
         />
 
         <app-track-map [trackPath]="vm.trackPath" [vehiclePoint]="vm.vehiclePoint" />
@@ -58,6 +60,8 @@
             [chrono]="vm.chrono"
             [speed]="vm.speed"
             [instructionLabel]="vm.instructionLabel"
+            [ghostDistance]="vm.ghostDistance"
+            [pitStop]="vm.pitStop"
           />
         </div>
 

@@ -18,10 +18,23 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         <span>Chrono</span>
       </article>
 
+      <article class="metric metric-ghost">
+        <img src="assets/icons/ghost_distance.png" alt="" />
+        <strong>{{ ghostDistance === null ? '--' : (ghostDistance | number: '1.0-0') }} m</strong>
+        <span>Ghost</span>
+      </article>
+
       <article class="speed">
         <strong>{{ speed ?? 0 | number: '1.0-1' }}</strong>
         <span>km/h</span>
       </article>
+
+      @if (pitStop === true) {
+        <article class="pit-exit">
+          <img src="assets/icons/ico_stands.png" alt="" />
+          <strong>Sortie stands</strong>
+        </article>
+      }
 
       <article class="metric metric-instruction">
         <img src="assets/icons/ico_speed_meter.png" alt="" />
@@ -90,6 +103,10 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       min-height: 9.2rem;
     }
 
+    .pit-exit {
+      display: none;
+    }
+
     .speed strong {
       font-size: clamp(4.8rem, 18vw, 8rem);
       font-weight: 800;
@@ -106,7 +123,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (min-width: 768px) {
       .primary-telemetry {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
       }
 
       .speed {
@@ -117,7 +134,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .primary-telemetry {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 0.7rem;
       }
 
@@ -169,6 +186,24 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         margin: 0.75rem 0 0;
         font-size: clamp(1.3rem, 4.2vw, 2rem);
       }
+
+      .pit-exit {
+        display: flex;
+        grid-column: 1 / -1;
+        align-items: center;
+        justify-content: center;
+        gap: 0.55rem;
+        margin-top: -0.45rem;
+        color: #ffffff;
+        font-size: clamp(1.05rem, 4.6vw, 1.6rem);
+        font-weight: 800;
+      }
+
+      .pit-exit img {
+        width: clamp(1.8rem, 7.4vw, 2.5rem);
+        height: clamp(1.8rem, 7.4vw, 2.5rem);
+        object-fit: contain;
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -179,4 +214,6 @@ export class PrimaryTelemetryComponent {
   @Input() chrono = '--:--';
   @Input() speed: number | null = null;
   @Input() instructionLabel = '--';
+  @Input() ghostDistance: number | null = null;
+  @Input() pitStop: boolean | null = null;
 }
