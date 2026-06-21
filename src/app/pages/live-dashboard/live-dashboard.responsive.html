@@ -2,10 +2,15 @@
   <main class="live-shell">
     <section class="container-fluid dashboard">
       <header class="status-bar">
-        <app-connection-status
-          [connected]="vm.connected"
-          [connectionState]="vm.connectionState"
-        />
+        <div class="status-main">
+          <app-connection-status
+            [connected]="vm.connected"
+            [connectionState]="vm.connectionState"
+          />
+          <div class="desktop-track-name d-none d-lg-flex">
+            Circuit : <strong>{{ vm.trackName ?? '--' }}</strong>
+          </div>
+        </div>
         <app-strategy-summary class="header-strategy" [strategyLabel]="vm.strategyLabel" />
       </header>
 
@@ -78,6 +83,10 @@
         </div>
 
         <div class="track-zone">
+          <div class="desktop-view-toggle" role="group" aria-label="Mode de carte">
+            <button type="button" class="active">Vue circuit</button>
+            <button type="button">Vue OSM</button>
+          </div>
           <app-track-map [trackPath]="vm.trackPath" [vehiclePoint]="vm.vehiclePoint" />
         </div>
 

@@ -41,6 +41,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
           {{ pitStop === null ? '--' : pitStop ? 'ON' : 'OFF' }}
         </span>
       </div>
+
+      <div class="stand-request-panel">
+        <div class="panel-title">Demande sortie stands :</div>
+        <div class="stand-request-row" [class.is-hidden]="pitStop !== true">
+          <img src="assets/icons/ico_stands.png" alt="" />
+          <strong>Sortie stands</strong>
+        </div>
+      </div>
     </section>
   `,
   styles: `
@@ -56,10 +64,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       background: rgba(0, 15, 20, 0.38);
       padding: clamp(1rem, 3vw, 2rem);
       box-shadow: inset 0 0 2.2rem rgba(255, 255, 255, 0.04);
-    }
-
-    .situation-panel {
-      display: none;
     }
 
     .state-list {
@@ -143,18 +147,18 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       opacity: 0.6;
     }
 
+    .stand-request-panel {
+      display: none;
+    }
+
     @media (max-width: 991.98px) {
       .race-state-panel {
         border: 2px solid #f27032;
         border-radius: 8px;
         background: rgba(0, 18, 24, 0.18);
         padding: 0.65rem 0.8rem 0.75rem;
-        box-shadow: none;
-      }
-
-      .situation-panel {
-        display: block;
-      }
+      box-shadow: none;
+    }
 
       .panel-title {
         margin-bottom: 0.45rem;
@@ -212,6 +216,107 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
       .stands-row {
         display: none;
+      }
+
+      .stand-request-panel {
+        display: none;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .race-state-panel {
+        border: 0;
+        border-top: 1px solid rgba(242, 112, 50, 0.65);
+        border-radius: 0;
+        background: transparent;
+        padding: 1.25rem 0 0;
+        box-shadow: none;
+      }
+
+      .situation-panel {
+        display: block;
+      }
+
+      .panel-title {
+        margin-bottom: 1rem;
+        color: #ffffff;
+        font-size: 1.25rem;
+        font-weight: 800;
+      }
+
+      .situation-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .situation-row img {
+        width: clamp(3.5rem, 5vw, 5rem);
+        height: clamp(3.5rem, 5vw, 5rem);
+        object-fit: contain;
+      }
+
+      .situation-badge {
+        flex: 1 1 auto;
+        max-width: 26rem;
+        border-radius: 999px;
+        padding: 0.6rem 1rem 0.72rem;
+        color: #ffffff;
+        font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+        font-weight: 800;
+        line-height: 1.1;
+        text-align: center;
+      }
+
+      .situation-course,
+      .situation-race,
+      .situation-running {
+        background: #00b807;
+      }
+
+      .situation-ne_pas_doubler,
+      .situation-no_overtaking {
+        background: #ffc400;
+      }
+
+      .situation-stop {
+        background: #d40000;
+      }
+
+      .state-list {
+        display: none;
+      }
+
+      .stands-row {
+        display: none;
+      }
+
+      .stand-request-panel {
+        display: block;
+        border-top: 1px solid rgba(242, 112, 50, 0.65);
+        padding-top: 1rem;
+      }
+
+      .stand-request-row {
+        display: flex;
+        min-height: 5.4rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.85rem;
+        color: #ffffff;
+        font-size: clamp(1.25rem, 2.4vw, 2rem);
+        font-weight: 800;
+      }
+
+      .stand-request-row.is-hidden {
+        visibility: hidden;
+      }
+
+      .stand-request-row img {
+        width: clamp(3rem, 4.5vw, 4.4rem);
+        height: clamp(3rem, 4.5vw, 4.4rem);
+        object-fit: contain;
       }
     }
   `,

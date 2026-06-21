@@ -155,6 +155,48 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         background: #009dad;
       }
     }
+
+    @media (min-width: 992px) {
+      .instruction-panel {
+        border: 0;
+        background: transparent;
+        padding: 0 0 1.25rem;
+        box-shadow: none;
+      }
+
+      .command-icon {
+        width: 3.7rem;
+        height: 3.7rem;
+      }
+
+      .panel-title {
+        font-size: 1.25rem;
+      }
+
+      .command-badge {
+        max-width: 22rem;
+        color: #ffffff;
+        font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+      }
+
+      .instruction-accelerer,
+      .instruction-accelerate {
+        border-color: #d40000;
+        background: #d40000;
+      }
+
+      .instruction-maintenir,
+      .instruction-maintain {
+        border-color: #00c90c;
+        background: #00b807;
+      }
+
+      .instruction-ralentir,
+      .instruction-slow_down {
+        border-color: #24f7ff;
+        background: #009dad;
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

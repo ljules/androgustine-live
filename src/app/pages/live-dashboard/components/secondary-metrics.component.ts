@@ -28,10 +28,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       </article>
       <article class="metric">
         <img src="assets/icons/ghost_distance.png" alt="" />
-        <strong>{{ ghostDistance ?? '--' }} m</strong>
-      </article>
-      <article class="metric">
-        <span class="metric-icon">Delta</span>
         <strong>{{ deltaDistance ?? '--' }} m</strong>
       </article>
     </section>
@@ -58,6 +54,16 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       background: rgba(0, 15, 20, 0.38);
       padding: 0.8rem;
       box-shadow: inset 0 0 2.2rem rgba(255, 255, 255, 0.04);
+    }
+
+    @media (min-width: 992px) {
+      .secondary-metrics {
+        grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+      }
+
+      .metric {
+        border-color: #f27032;
+      }
     }
 
     .metric img {

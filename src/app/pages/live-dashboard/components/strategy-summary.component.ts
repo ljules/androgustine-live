@@ -26,14 +26,20 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       box-shadow: inset 0 0 2.2rem rgba(255, 255, 255, 0.04);
     }
 
+    @media (min-width: 992px) {
+      .strategy-summary {
+        border-color: #f27032;
+      }
+    }
+
     span {
       color: #d8f7ff;
-      font-size: clamp(0.95rem, 1.7vw, 1.2rem);
+      font-size: clamp(0.86rem, 1.5vw, 1.08rem);
     }
 
     strong {
       color: #00c90c;
-      font-size: clamp(1.2rem, 2.4vw, 1.8rem);
+      font-size: clamp(1.08rem, 2.15vw, 1.62rem);
       font-weight: 800;
       text-align: right;
     }

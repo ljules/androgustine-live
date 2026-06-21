@@ -49,6 +49,10 @@
   background: #f27032;
 }
 
+.desktop-view-toggle {
+  display: none;
+}
+
 .desktop-layout {
   grid-template-columns: minmax(0, 1.3fr) minmax(22rem, 0.8fr);
   grid-template-areas:
@@ -64,14 +68,17 @@
 }
 
 .track-zone {
+  display: grid;
   grid-area: track;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
 }
 
 .side-zone {
   display: grid;
   grid-area: side;
-  gap: 1.25rem;
-  align-content: start;
+  gap: 0;
+  align-content: stretch;
 }
 
 .metrics-zone {
@@ -80,6 +87,23 @@
 
 .header-strategy {
   min-width: min(100%, 18rem);
+}
+
+.desktop-track-name {
+  align-items: center;
+  gap: 0.45rem;
+  color: #d8f7ff;
+  font-size: clamp(0.82rem, 1.25vw, 1rem);
+  font-weight: 700;
+}
+
+.status-main {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.desktop-track-name strong {
+  color: #ffffff;
 }
 
 .status-bar,
@@ -169,5 +193,36 @@
       linear-gradient(180deg, rgba(2, 9, 12, 0.96) 0%, rgba(3, 38, 49, 0.88) 48%, rgba(11, 111, 138, 0.9) 100%),
       url('/assets/images/background_landscape_dark.png') center / cover no-repeat,
       #02090c;
+  }
+
+  .desktop-view-toggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .desktop-view-toggle button {
+    min-height: 2.55rem;
+    border: 0;
+    background: #c9c9c9;
+    color: #ffffff;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .desktop-view-toggle button.active {
+    background: #f27032;
+  }
+
+  .side-zone {
+    border: 1px solid #f27032;
+    border-radius: 8px;
+    background: rgba(0, 15, 20, 0.38);
+    padding: clamp(1rem, 2vw, 1.75rem);
+    box-shadow: inset 0 0 2.2rem rgba(255, 255, 255, 0.04);
+  }
+
+  .track-zone {
+    height: 100%;
   }
 }

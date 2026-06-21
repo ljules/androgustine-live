@@ -28,7 +28,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
       @if (variant !== 'cards') {
         <article class="speed">
-          <strong>{{ speed ?? 0 | number: '1.0-1' }}</strong>
+          <strong>{{ speed ?? 0 | number: '1.0-0' }}</strong>
           <span>km/h</span>
         </article>
 
@@ -127,12 +127,23 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (min-width: 768px) {
       .primary-telemetry {
-        grid-template-columns: repeat(6, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
       }
 
       .speed {
         grid-column: span 2;
         min-height: 8.4rem;
+      }
+
+      .metric-instruction {
+        display: none;
+      }
+    }
+
+    @media (min-width: 992px) {
+      .metric,
+      .speed {
+        border-color: #f27032;
       }
     }
 

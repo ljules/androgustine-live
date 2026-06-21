@@ -47,6 +47,20 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       box-shadow: inset 0 0 2.2rem rgba(255, 255, 255, 0.04);
     }
 
+    @media (min-width: 992px) {
+      :host {
+        height: 100%;
+      }
+
+      .track-panel {
+        border-color: #f27032;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+        min-height: 0;
+        height: 100%;
+      }
+    }
+
     .track-panel::before {
       position: absolute;
       inset: auto -12% -48% -12%;

@@ -19,7 +19,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       display: inline-flex;
       align-items: center;
       gap: 0.65rem;
-      font-size: clamp(1rem, 2vw, 1.5rem);
+      font-size: clamp(0.8rem, 1.5vw, 1.12rem);
       font-weight: 700;
       letter-spacing: 0;
     }

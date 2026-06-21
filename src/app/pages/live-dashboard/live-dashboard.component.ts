@@ -30,6 +30,7 @@ interface DashboardViewModel {
   strategyDocument: StrategyDocument | null;
   instructions: InstructionsDocument | null;
   sessionId: string | null;
+  trackName: string | null;
   connectionState?: string;
   connected: boolean;
   error?: string;
@@ -209,6 +210,7 @@ export class LiveDashboardComponent {
         strategyDocument,
         instructions,
         sessionId: snapshot.sessionId ?? null,
+        trackName: session?.trackName ?? track?.trackName ?? null,
         connectionState: snapshot.connectionState,
         connected: snapshot.connected,
         error: snapshot.error,
