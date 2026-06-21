@@ -19,6 +19,27 @@
         </div>
       }
 
+      @if (vm.telemetry && !vm.hasUsableData) {
+        <div class="alert alert-warning border-0 telemetry-alert" role="alert">
+          Document telemetry/latest reçu, mais aucune donnée exploitable n'a été trouvée par le mapping actuel.
+        </div>
+      }
+
+      @if (debug) {
+        <section class="debug-panel">
+          <div class="debug-title">Debug Firestore session courante</div>
+          <pre>{{ {
+            sessionId: vm.sessionId,
+            connectionState: vm.connectionState,
+            session: vm.session,
+            telemetry: vm.telemetry,
+            track: vm.track,
+            strategy: vm.strategyDocument,
+            instructions: vm.instructions
+          } | json }}</pre>
+        </section>
+      }
+
       <section class="row g-3 telemetry-grid">
         <article class="col-6 col-xl-2">
           <div class="metric-card accent-orange">
