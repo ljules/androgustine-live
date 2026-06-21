@@ -18,6 +18,49 @@
   padding: clamp(1rem, 2vw, 2rem);
 }
 
+.mobile-layout,
+.desktop-layout {
+  padding-top: 1.25rem;
+}
+
+.mobile-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.desktop-layout {
+  grid-template-columns: minmax(0, 1.3fr) minmax(22rem, 0.8fr);
+  grid-template-areas:
+    'primary primary'
+    'track side'
+    'metrics metrics';
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.primary-zone {
+  grid-area: primary;
+}
+
+.track-zone {
+  grid-area: track;
+}
+
+.side-zone {
+  display: grid;
+  grid-area: side;
+  gap: 1.25rem;
+  align-content: start;
+}
+
+.metrics-zone {
+  grid-area: metrics;
+}
+
+.header-strategy {
+  min-width: min(100%, 18rem);
+}
+
 .status-bar,
 .weather-strip {
   display: flex;

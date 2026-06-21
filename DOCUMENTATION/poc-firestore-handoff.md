@@ -155,7 +155,7 @@ src/app/app.config.ts
 src/app/models/telemetry.model.ts
 src/app/services/telemetry.service.ts
 src/app/pages/live-dashboard/live-dashboard.component.ts
-src/app/pages/live-dashboard/live-dashboard.component.html
+src/app/pages/live-dashboard/live-dashboard.responsive.html
 src/app/pages/live-dashboard/live-dashboard.component.scss
 src/environments/environment.ts
 src/environments/environment.prod.ts
@@ -180,7 +180,7 @@ live-dashboard.component.ts
   Projection simple du circuit.
   Interpolation de position depuis snappedDistanceM.
 
-live-dashboard.component.html/scss
+live-dashboard.responsive.html/live-dashboard.component.scss
   Interface actuelle du POC.
   Zone à privilégier pour la prochaine phase UX.
 ```

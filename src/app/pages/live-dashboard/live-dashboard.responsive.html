@@ -1,0 +1,104 @@
+@if (vm$ | async; as vm) {
+  <main class="live-shell">
+    <section class="container-fluid dashboard">
+      <header class="status-bar">
+        <app-connection-status
+          [connected]="vm.connected"
+          [connectionState]="vm.connectionState"
+        />
+        <app-strategy-summary class="header-strategy" [strategyLabel]="vm.strategyLabel" />
+      </header>
+
+      @if (vm.error) {
+        <div class="alert alert-danger border-0 telemetry-alert" role="alert">
+          {{ vm.error }}
+        </div>
+      }
+
+      @if (vm.telemetry && !vm.hasUsableData) {
+        <div class="alert alert-warning border-0 telemetry-alert" role="alert">
+          Telemetrie recue, mais aucune donnee exploitable n'a ete trouvee par le mapping actuel.
+        </div>
+      }
+
+      <section class="mobile-layout d-lg-none">
+        <app-primary-telemetry
+          [currentLap]="vm.currentLap"
+          [totalLaps]="vm.totalLaps"
+          [chrono]="vm.chrono"
+          [speed]="vm.speed"
+          [instructionLabel]="vm.instructionLabel"
+        />
+
+        <app-secondary-metrics
+          [temperature]="vm.temperature"
+          [windSpeed]="vm.windSpeed"
+          [rainProbability]="vm.rainProbability"
+          [heartRate]="vm.heartRate"
+          [energy]="vm.energy"
+          [ghostDistance]="vm.ghostDistance"
+          [deltaDistance]="vm.deltaDistance"
+        />
+
+        <app-track-map [trackPath]="vm.trackPath" [vehiclePoint]="vm.vehiclePoint" />
+
+        <app-instruction-panel
+          [instructionLabel]="vm.instructionLabel"
+          [instructionKey]="vm.instructionKey"
+        />
+
+        <app-race-state-panel [raceStateKey]="vm.raceStateKey" [pitStop]="vm.pitStop" />
+      </section>
+
+      <section class="desktop-layout d-none d-lg-grid">
+        <div class="primary-zone">
+          <app-primary-telemetry
+            [currentLap]="vm.currentLap"
+            [totalLaps]="vm.totalLaps"
+            [chrono]="vm.chrono"
+            [speed]="vm.speed"
+            [instructionLabel]="vm.instructionLabel"
+          />
+        </div>
+
+        <div class="track-zone">
+          <app-track-map [trackPath]="vm.trackPath" [vehiclePoint]="vm.vehiclePoint" />
+        </div>
+
+        <aside class="side-zone">
+          <app-instruction-panel
+            [instructionLabel]="vm.instructionLabel"
+            [instructionKey]="vm.instructionKey"
+          />
+          <app-race-state-panel [raceStateKey]="vm.raceStateKey" [pitStop]="vm.pitStop" />
+        </aside>
+
+        <div class="metrics-zone">
+          <app-secondary-metrics
+            [temperature]="vm.temperature"
+            [windSpeed]="vm.windSpeed"
+            [rainProbability]="vm.rainProbability"
+            [heartRate]="vm.heartRate"
+            [energy]="vm.energy"
+            [ghostDistance]="vm.ghostDistance"
+            [deltaDistance]="vm.deltaDistance"
+          />
+        </div>
+      </section>
+
+      @if (debug) {
+        <app-debug-panel
+          [data]="{
+            sessionId: vm.sessionId,
+            connectionState: vm.connectionState,
+            session: vm.session,
+            telemetry: vm.telemetry,
+            track: vm.track,
+            strategy: vm.strategyDocument,
+            instructions: vm.instructions
+          }"
+        />
+      }
+    </section>
+  </main>
+}

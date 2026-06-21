@@ -1,4 +1,4 @@
-import { AsyncPipe, DecimalPipe, JsonPipe, NgClass } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { map } from 'rxjs';
 import {
@@ -14,6 +14,14 @@ import {
   InstructionsDocument,
 } from '../../models/telemetry.model';
 import { TelemetryService } from '../../services/telemetry.service';
+import { ConnectionStatusComponent } from './components/connection-status.component';
+import { DebugPanelComponent } from './components/debug-panel.component';
+import { InstructionPanelComponent } from './components/instruction-panel.component';
+import { PrimaryTelemetryComponent } from './components/primary-telemetry.component';
+import { RaceStatePanelComponent } from './components/race-state-panel.component';
+import { SecondaryMetricsComponent } from './components/secondary-metrics.component';
+import { StrategySummaryComponent } from './components/strategy-summary.component';
+import { TrackMapComponent } from './components/track-map.component';
 
 interface DashboardViewModel {
   telemetry: Telemetry | null;
@@ -34,9 +42,17 @@ interface DashboardViewModel {
   rainProbability: number | null;
   heartRate: number | null;
   energy: number | null;
+  ghostDistance: number | null;
+  deltaDistance: number | null;
   strategy: StrategyMode | null;
+  strategyLabel: string;
+  strategyKey: string;
   instruction: CopilotInstruction | null;
+  instructionLabel: string;
+  instructionKey: string;
   raceState: RaceState | null;
+  raceStateLabel: string;
+  raceStateKey: string;
   pitStop: boolean | null;
   trackPath: string | null;
   vehiclePoint: { x: number; y: number } | null;
@@ -45,8 +61,18 @@ interface DashboardViewModel {
 
 @Component({
   selector: 'app-live-dashboard',
-  imports: [AsyncPipe, DecimalPipe, JsonPipe, NgClass],
-  templateUrl: './live-dashboard.component.html',
+  imports: [
+    AsyncPipe,
+    ConnectionStatusComponent,
+    DebugPanelComponent,
+    InstructionPanelComponent,
+    PrimaryTelemetryComponent,
+    RaceStatePanelComponent,
+    SecondaryMetricsComponent,
+    StrategySummaryComponent,
+    TrackMapComponent,
+  ],
+  templateUrl: './live-dashboard.responsive.html',
   styleUrl: './live-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -134,6 +160,8 @@ export class LiveDashboardComponent {
         telemetry?.joulemeter?.joules,
         telemetry?.joulemeter?.consumed,
       );
+      const ghostDistance = this.firstNumber(telemetry?.ghostDistanceM);
+      const deltaDistance = this.firstNumber(telemetry?.deltaDistanceM);
       const strategy =
         telemetry?.activeStrategy ??
         telemetry?.strategy ??
@@ -193,9 +221,17 @@ export class LiveDashboardComponent {
         rainProbability,
         heartRate,
         energy,
+        ghostDistance,
+        deltaDistance,
         strategy,
+        strategyLabel: this.strategyLabel(strategy),
+        strategyKey: this.normalizedKey(strategy),
         instruction,
+        instructionLabel: this.instructionLabel(instruction),
+        instructionKey: this.normalizedKey(instruction),
         raceState,
+        raceStateLabel: this.raceStateLabel(raceState),
+        raceStateKey: this.normalizedKey(raceState),
         pitStop,
         trackPath,
         vehiclePoint,

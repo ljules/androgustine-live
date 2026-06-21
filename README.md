@@ -102,7 +102,7 @@ src/app/app.config.ts
 src/app/models/telemetry.model.ts
 src/app/services/telemetry.service.ts
 src/app/pages/live-dashboard/live-dashboard.component.ts
-src/app/pages/live-dashboard/live-dashboard.component.html
+src/app/pages/live-dashboard/live-dashboard.responsive.html
 src/app/pages/live-dashboard/live-dashboard.component.scss
 ```
 
