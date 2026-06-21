@@ -80,10 +80,31 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     @media (max-width: 767.98px) {
       .secondary-metrics {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0;
+        border-block: 1px solid #f27032;
+        padding-block: 0.55rem;
       }
 
       .metric:nth-child(n + 4) {
         display: none;
+      }
+
+      .metric {
+        min-height: 2.6rem;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        padding: 0.2rem;
+        gap: 0.35rem;
+      }
+
+      .metric-icon {
+        font-size: 0.7rem;
+      }
+
+      .metric strong {
+        font-size: clamp(0.95rem, 4.4vw, 1.25rem);
       }
     }
   `,

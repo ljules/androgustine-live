@@ -36,6 +36,19 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     .connection.online .connection-dot {
       background: #00c90c;
     }
+
+    @media (max-width: 991.98px) {
+      .connection {
+        gap: 0.55rem;
+        font-size: clamp(1.05rem, 4.4vw, 1.55rem);
+        line-height: 1.1;
+      }
+
+      .connection-dot {
+        width: 0.75rem;
+        height: 0.75rem;
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -114,6 +114,61 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         min-height: 8.4rem;
       }
     }
+
+    @media (max-width: 991.98px) {
+      .primary-telemetry {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.7rem;
+      }
+
+      .metric,
+      .speed {
+        border-color: rgba(242, 112, 50, 0.34);
+        background: rgba(0, 12, 17, 0.32);
+      }
+
+      .metric {
+        min-height: 5.6rem;
+        padding: 0.75rem;
+      }
+
+      .metric img {
+        width: clamp(2.35rem, 11vw, 3.25rem);
+        height: clamp(2.35rem, 11vw, 3.25rem);
+      }
+
+      .metric strong {
+        font-size: clamp(2rem, 9vw, 3.25rem);
+      }
+
+      .metric span {
+        color: #ffffff;
+        font-size: 0.8rem;
+      }
+
+      .metric-instruction {
+        display: none;
+      }
+
+      .speed {
+        grid-column: 1 / -1;
+        min-height: clamp(11rem, 36vh, 17rem);
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .speed strong {
+        font-size: clamp(7.5rem, 36vw, 14rem);
+        text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.55);
+      }
+
+      .speed span {
+        align-self: center;
+        margin: 1.4rem 0 0;
+        font-size: clamp(2rem, 8vw, 3.2rem);
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -125,6 +125,38 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     .stands-toggle.unknown {
       opacity: 0.6;
     }
+
+    @media (max-width: 991.98px) {
+      .race-state-panel {
+        gap: 0.8rem;
+        border: 0;
+        border-top: 1px solid #f27032;
+        border-radius: 0;
+        background: transparent;
+        padding: 1rem 0 0;
+        box-shadow: none;
+      }
+
+      .state-list {
+        gap: 0.65rem;
+      }
+
+      .state-badge {
+        width: min(100%, 29rem);
+        margin-inline: auto;
+        padding-block: 0.48rem;
+        font-size: clamp(1.35rem, 7vw, 2.4rem);
+      }
+
+      .state-badge:not(.active) {
+        display: none;
+      }
+
+      .stands-row {
+        justify-content: center;
+        font-size: clamp(1.55rem, 8vw, 2.8rem);
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -108,6 +108,38 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       color: rgba(255, 255, 255, 0.78);
       font-size: clamp(0.95rem, 2vw, 1.25rem);
     }
+
+    @media (max-width: 991.98px) {
+      .track-panel {
+        min-height: clamp(13rem, 38vh, 21rem);
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .track-panel::before {
+        display: none;
+      }
+
+      .track-map {
+        width: min(86%, 30rem);
+      }
+
+      .track-shadow {
+        stroke-width: 6.1;
+      }
+
+      .track-line {
+        stroke-width: 4;
+      }
+
+      .position-note {
+        bottom: 0.45rem;
+        color: #ffffff;
+        font-size: clamp(1.15rem, 5vw, 1.85rem);
+        text-shadow: 0 0 0.7rem rgba(0, 0, 0, 0.75);
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

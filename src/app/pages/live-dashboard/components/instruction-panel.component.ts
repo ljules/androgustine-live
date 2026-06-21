@@ -49,6 +49,30 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     .instruction-unknown {
       color: rgba(255, 255, 255, 0.65);
     }
+
+    @media (max-width: 991.98px) {
+      .instruction-panel {
+        border: 0;
+        background: transparent;
+        padding: 0.2rem 0;
+        box-shadow: none;
+      }
+
+      .command-badge {
+        width: min(100%, 31rem);
+        margin-inline: auto;
+        border-width: 0.26rem;
+        padding: 0.65rem 1rem 0.78rem;
+        font-size: clamp(2rem, 10vw, 3.7rem);
+        text-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.45);
+      }
+
+      .instruction-maintenir {
+        border-color: #00c90c;
+        background: #00b807;
+        color: #ffffff;
+      }
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

@@ -77,7 +77,7 @@ interface DashboardViewModel {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LiveDashboardComponent {
-  readonly debug = true;
+  readonly debug = false;
   private readonly telemetryService = inject(TelemetryService);
 
   readonly vm$ = this.telemetryService.latest$.pipe(
