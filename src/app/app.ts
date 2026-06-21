@@ -5,7 +5,5 @@ import { LiveDashboardComponent } from './pages/live-dashboard/live-dashboard.co
   selector: 'app-root',
   imports: [LiveDashboardComponent],
   template: '<app-live-dashboard />',
-  styleUrl: './app.scss'
 })
-export class App {
-}
+export class App {}

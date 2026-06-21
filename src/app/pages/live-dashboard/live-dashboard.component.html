@@ -5,7 +5,7 @@
         <div class="connection" [ngClass]="{ online: vm.connected, offline: !vm.connected }">
           <span class="connection-dot"></span>
           <span>
-            {{ vm.connected ? 'Connecté - telemetry/latest actif' : 'Connexion Firestore...' }}
+            {{ vm.connected ? 'Connecté - session Firestore active' : 'Connexion Firestore...' }}
           </span>
         </div>
         <div class="strategy-pill">
@@ -21,7 +21,7 @@
 
       @if (vm.telemetry && !vm.hasUsableData) {
         <div class="alert alert-warning border-0 telemetry-alert" role="alert">
-          Document telemetry/latest reçu, mais aucune donnée exploitable n'a été trouvée par le mapping actuel.
+          Télémétrie reçue, mais aucune donnée exploitable n'a été trouvée par le mapping actuel.
         </div>
       }
 
