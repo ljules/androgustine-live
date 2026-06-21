@@ -113,6 +113,14 @@ export interface Telemetry {
   gpsLat?: number;
   gpsLon?: number;
   snappedDistanceM?: number;
+  ghostLat?: number;
+  ghostLon?: number;
+  ghostGpsLat?: number;
+  ghostGpsLon?: number;
+  ghostSnappedDistanceM?: number;
+  ghostTrackDistanceM?: number;
+  ghostDistanceFromStartM?: number;
+  ghostProgress?: number;
   ghostDistanceM?: number;
   deltaDistanceM?: number;
   temperature?: number;
@@ -151,6 +159,10 @@ export interface Telemetry {
   circuitPoints?: TrackPoint[];
   vehiclePosition?: VehiclePosition;
   position?: VehiclePosition;
+  ghostPosition?: VehiclePosition;
+  ghostCarPosition?: VehiclePosition;
+  ghost?: VehiclePosition;
+  ghostCar?: VehiclePosition;
   latitude?: number;
   longitude?: number;
   progress?: number;

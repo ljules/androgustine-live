@@ -34,6 +34,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
                 r="7"
               ></circle>
             }
+            @if (osmMap.ghostPoint) {
+              <circle
+                class="ghost-dot"
+                [attr.cx]="osmMap.ghostPoint.x"
+                [attr.cy]="osmMap.ghostPoint.y"
+                r="7"
+              ></circle>
+            }
           </svg>
         } @else {
           <div class="track-empty">
@@ -56,6 +64,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
               class="vehicle-dot"
               [attr.cx]="vehiclePoint.x"
               [attr.cy]="vehiclePoint.y"
+              r="2.8"
+            ></circle>
+          }
+          @if (ghostPoint) {
+            <circle
+              class="ghost-dot"
+              [attr.cx]="ghostPoint.x"
+              [attr.cy]="ghostPoint.y"
               r="2.8"
             ></circle>
           }
@@ -182,6 +198,13 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       filter: drop-shadow(0 0 0.35rem rgba(242, 112, 50, 0.9));
     }
 
+    .ghost-dot {
+      fill: #d79bdc;
+      stroke: #ffffff;
+      stroke-width: 0.7;
+      filter: drop-shadow(0 0 0.35rem rgba(215, 155, 220, 0.88));
+    }
+
     .track-empty,
     .position-note {
       position: relative;
@@ -261,6 +284,8 @@ export class TrackMapComponent {
     trackPath: string;
     trackSegments: Array<{ path: string; color: string }>;
     vehiclePoint: { x: number; y: number } | null;
+    ghostPoint: { x: number; y: number } | null;
   } | null = null;
   @Input() vehiclePoint: { x: number; y: number } | null = null;
+  @Input() ghostPoint: { x: number; y: number } | null = null;
 }

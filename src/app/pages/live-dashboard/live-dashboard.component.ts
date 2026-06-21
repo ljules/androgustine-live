@@ -60,6 +60,7 @@ interface DashboardViewModel {
   trackSegments: TrackSegmentPath[];
   osmMap: OsmTrackMap | null;
   vehiclePoint: { x: number; y: number } | null;
+  ghostPoint: { x: number; y: number } | null;
   hasUsableData: boolean;
 }
 
@@ -92,6 +93,7 @@ interface OsmTrackMap {
   trackPath: string;
   trackSegments: TrackSegmentPath[];
   vehiclePoint: { x: number; y: number } | null;
+  ghostPoint: { x: number; y: number } | null;
 }
 
 @Component({
@@ -235,10 +237,16 @@ export class LiveDashboardComponent {
         telemetry?.copilot?.pitStop,
         telemetry?.copilot?.stands,
       );
+      const segmentStrategy = this.segmentStrategy(strategy, currentLap);
       const trackPath = this.pathFromPoints(normalizedTrack.points, true);
-      const trackSegments = this.strategySegments(strategyDocument, strategy, normalizedTrack);
+      const trackSegments = this.strategySegments(
+        strategyDocument,
+        segmentStrategy,
+        normalizedTrack,
+      );
       const vehiclePoint = this.vehiclePoint(telemetry, track, trackPoints, normalizedTrack);
-      const osmMap = this.osmMap(trackPoints, telemetry, track, strategyDocument, strategy);
+      const ghostPoint = this.ghostPoint(telemetry, track, trackPoints, normalizedTrack);
+      const osmMap = this.osmMap(trackPoints, telemetry, track, strategyDocument, segmentStrategy);
 
       const vm: DashboardViewModel = {
         telemetry,
@@ -276,6 +284,7 @@ export class LiveDashboardComponent {
         trackSegments,
         osmMap,
         vehiclePoint,
+        ghostPoint,
         hasUsableData: false,
       };
 
@@ -317,6 +326,14 @@ export class LiveDashboardComponent {
 
   setMapMode(mode: 'circuit' | 'osm'): void {
     this.mapMode.set(mode);
+  }
+
+  private segmentStrategy(strategy: StrategyMode | null, currentLap: number | null): StrategyMode | null {
+    if (currentLap !== null) {
+      return currentLap <= 1 ? 'depart' : 'course';
+    }
+
+    return strategy;
   }
 
   private label(value: string | null, knownLabels: Record<string, string>): string {
@@ -544,6 +561,57 @@ export class LiveDashboardComponent {
     return normalizedTrack.project(position);
   }
 
+  private ghostPoint(
+    telemetry: Telemetry | null,
+    track: TrackDocument | null,
+    trackPoints: TrackPoint[],
+    normalizedTrack: NormalizedTrack,
+  ): { x: number; y: number } | null {
+    const ghostLat = this.firstNumber(telemetry?.ghostLat, telemetry?.ghostGpsLat);
+    const ghostLon = this.firstNumber(telemetry?.ghostLon, telemetry?.ghostGpsLon);
+    if (ghostLat !== null && ghostLon !== null && trackPoints.length) {
+      return normalizedTrack.project({ lat: ghostLat, lon: ghostLon });
+    }
+
+    const ghostDistanceM = this.firstNumber(
+      telemetry?.ghostSnappedDistanceM,
+      telemetry?.ghostTrackDistanceM,
+      telemetry?.ghostDistanceFromStartM,
+    );
+    const projectedPosition = this.positionAtDistance(
+      trackPoints,
+      ghostDistanceM,
+      track?.totalDistanceM,
+    );
+    if (projectedPosition) {
+      return normalizedTrack.project(projectedPosition);
+    }
+
+    const position =
+      telemetry?.ghostPosition ??
+      telemetry?.ghostCarPosition ??
+      telemetry?.ghost ??
+      telemetry?.ghostCar ??
+      null;
+    if (!position) {
+      return null;
+    }
+
+    const ghostProgress = this.firstNumber(telemetry?.ghostProgress, position.progress);
+    if (ghostProgress !== null && normalizedTrack.points.length) {
+      const index = Math.round(
+        Math.max(0, Math.min(1, ghostProgress)) * (normalizedTrack.points.length - 1),
+      );
+      return normalizedTrack.points[index];
+    }
+
+    if (this.pointX(position) === null || this.pointY(position) === null || !trackPoints.length) {
+      return null;
+    }
+
+    return normalizedTrack.project(position);
+  }
+
   private pointX(point: TrackPoint | VehiclePosition): number | null {
     return this.firstNumber(point.x, point.lng, point.lon, point.longitude);
   }
@@ -568,6 +636,7 @@ export class LiveDashboardComponent {
       vm.pitStop,
       vm.trackPath,
       vm.vehiclePoint,
+      vm.ghostPoint,
     ].some((value) => value !== null && value !== undefined);
   }
 
@@ -797,6 +866,7 @@ export class LiveDashboardComponent {
       trackPath,
       trackSegments: this.strategySegmentsFromPoints(strategyDocument, activeStrategy, mapPoints),
       vehiclePoint: this.osmVehiclePoint(telemetry, track, geoPoints, scale, originX, originY),
+      ghostPoint: this.osmGhostPoint(telemetry, track, geoPoints, scale, originX, originY),
     };
   }
 
@@ -829,6 +899,68 @@ export class LiveDashboardComponent {
     }
 
     return null;
+  }
+
+  private osmGhostPoint(
+    telemetry: Telemetry | null,
+    track: TrackDocument | null,
+    geoPoints: TrackPoint[],
+    scale: number,
+    originX: number,
+    originY: number,
+  ): { x: number; y: number } | null {
+    const ghostLat = this.firstNumber(telemetry?.ghostLat, telemetry?.ghostGpsLat);
+    const ghostLon = this.firstNumber(telemetry?.ghostLon, telemetry?.ghostGpsLon);
+    if (ghostLat !== null && ghostLon !== null) {
+      return this.osmPoint(ghostLat, ghostLon, scale, originX, originY);
+    }
+
+    const ghostDistanceM = this.firstNumber(
+      telemetry?.ghostSnappedDistanceM,
+      telemetry?.ghostTrackDistanceM,
+      telemetry?.ghostDistanceFromStartM,
+    );
+    const projectedPosition = this.positionAtDistance(
+      geoPoints,
+      ghostDistanceM,
+      track?.totalDistanceM,
+    );
+    if (projectedPosition) {
+      const lat = this.pointY(projectedPosition);
+      const lon = this.pointX(projectedPosition);
+      if (lat !== null && lon !== null) {
+        return this.osmPoint(lat, lon, scale, originX, originY);
+      }
+    }
+
+    const position =
+      telemetry?.ghostPosition ??
+      telemetry?.ghostCarPosition ??
+      telemetry?.ghost ??
+      telemetry?.ghostCar ??
+      null;
+    if (!position) {
+      return null;
+    }
+
+    const ghostProgress = this.firstNumber(telemetry?.ghostProgress, position.progress);
+    if (ghostProgress !== null && geoPoints.length) {
+      const index = Math.round(Math.max(0, Math.min(1, ghostProgress)) * (geoPoints.length - 1));
+      const progressPosition = geoPoints[index];
+      const lat = this.pointY(progressPosition);
+      const lon = this.pointX(progressPosition);
+      if (lat !== null && lon !== null) {
+        return this.osmPoint(lat, lon, scale, originX, originY);
+      }
+    }
+
+    const positionLat = this.pointY(position);
+    const positionLon = this.pointX(position);
+    if (positionLat === null || positionLon === null) {
+      return null;
+    }
+
+    return this.osmPoint(positionLat, positionLon, scale, originX, originY);
   }
 
   private osmPoint(
