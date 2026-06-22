@@ -97,30 +97,30 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         border: 2px solid #f27032;
         border-radius: 8px;
         background: rgba(0, 18, 24, 0.18);
-        padding: 0.65rem 0.8rem 0.75rem;
+        padding: 0.5rem 0.7rem 0.56rem;
         box-shadow: none;
       }
 
       .panel-title {
-        margin-bottom: 0.45rem;
-        font-size: clamp(0.82rem, 3vw, 1rem);
+        margin-bottom: 0.32rem;
+        font-size: clamp(0.74rem, 2.7vw, 0.9rem);
       }
 
       .command-row {
         justify-content: flex-start;
-        gap: 0.75rem;
+        gap: 0.58rem;
       }
 
       .command-icon {
-        width: clamp(2.4rem, 11vw, 3.4rem);
-        height: clamp(2.4rem, 11vw, 3.4rem);
+        width: clamp(2.15rem, 9.9vw, 3.05rem);
+        height: clamp(2.15rem, 9.9vw, 3.05rem);
       }
 
       .command-badge {
         max-width: 13rem;
         border-width: 0.26rem;
-        padding: 0.34rem 0.75rem 0.42rem;
-        font-size: clamp(1rem, 4.4vw, 1.45rem);
+        padding: 0.26rem 0.68rem 0.34rem;
+        font-size: clamp(0.9rem, 4vw, 1.3rem);
         color: #ffffff;
         text-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.45);
       }

@@ -155,7 +155,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
     @media (max-width: 991.98px) {
       .primary-telemetry {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.7rem;
+        gap: 0.5rem;
       }
 
       .metric,
@@ -165,23 +165,23 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .metric {
-        min-height: 4.25rem;
-        padding: 0.55rem;
-        gap: 0 0.45rem;
+        grid-template-areas: 'icon value';
+        min-height: 3.45rem;
+        padding: 0.46rem;
+        gap: 0 0.38rem;
       }
 
       .metric img {
-        width: clamp(1.7rem, 7.4vw, 2.25rem);
-        height: clamp(1.7rem, 7.4vw, 2.25rem);
+        width: clamp(1.45rem, 6.3vw, 1.9rem);
+        height: clamp(1.45rem, 6.3vw, 1.9rem);
       }
 
       .metric strong {
-        font-size: clamp(1.35rem, 6vw, 2.1rem);
+        font-size: clamp(1.15rem, 5.1vw, 1.78rem);
       }
 
       .metric span {
-        color: #ffffff;
-        font-size: 0.8rem;
+        display: none;
       }
 
       .metric-instruction {
@@ -190,21 +190,21 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
       .speed {
         grid-column: 1 / -1;
-        min-height: clamp(5.8rem, 16vh, 8rem);
+        min-height: clamp(4.5rem, 12.5vh, 6.4rem);
         border: 0;
         background: transparent;
         box-shadow: none;
       }
 
       .speed strong {
-        font-size: clamp(4.2rem, 18vw, 7rem);
+        font-size: clamp(3.75rem, 16.2vw, 6.3rem);
         text-shadow: 0 0 1.25rem rgba(0, 0, 0, 0.55);
       }
 
       .speed span {
         align-self: center;
         margin: 0.75rem 0 0;
-        font-size: clamp(1.3rem, 4.2vw, 2rem);
+        font-size: clamp(1.17rem, 3.8vw, 1.8rem);
       }
 
       .pit-exit {

@@ -231,7 +231,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .track-panel {
-        min-height: clamp(11rem, 29vh, 16rem);
+        min-height: clamp(9.75rem, 24vh, 13.25rem);
         border: 0;
         background: transparent;
         box-shadow: none;
@@ -242,7 +242,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .track-map {
-        width: min(96%, 32rem);
+        width: 100%;
+        max-width: 32rem;
       }
 
       .track-shadow {
@@ -271,9 +272,19 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
       .position-note {
         bottom: 0.45rem;
+        max-width: 100%;
+        padding-inline: 0.5rem;
         color: #ffffff;
-        font-size: clamp(1.15rem, 5vw, 1.85rem);
+        font-size: clamp(0.95rem, 4vw, 1.35rem);
+        overflow-wrap: anywhere;
         text-shadow: 0 0 0.7rem rgba(0, 0, 0, 0.75);
+      }
+
+      .track-empty {
+        max-width: 100%;
+        padding-inline: 0.5rem;
+        font-size: clamp(1rem, 4.2vw, 1.45rem);
+        overflow-wrap: anywhere;
       }
     }
   `,

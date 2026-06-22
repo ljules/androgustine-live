@@ -153,29 +153,30 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
     @media (max-width: 991.98px) {
       .race-state-panel {
+        gap: 0.5rem;
         border: 2px solid #f27032;
         border-radius: 8px;
         background: rgba(0, 18, 24, 0.18);
-        padding: 0.65rem 0.8rem 0.75rem;
-      box-shadow: none;
-    }
+        padding: 0.5rem 0.7rem 0.56rem;
+        box-shadow: none;
+      }
 
       .panel-title {
-        margin-bottom: 0.45rem;
+        margin-bottom: 0.32rem;
         color: #ffffff;
-        font-size: clamp(0.82rem, 3vw, 1rem);
+        font-size: clamp(0.74rem, 2.7vw, 0.9rem);
         font-weight: 800;
       }
 
       .situation-row {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.58rem;
       }
 
       .situation-row img {
-        width: clamp(2.4rem, 11vw, 3.4rem);
-        height: clamp(2.4rem, 11vw, 3.4rem);
+        width: clamp(2.15rem, 9.9vw, 3.05rem);
+        height: clamp(2.15rem, 9.9vw, 3.05rem);
         object-fit: contain;
       }
 
@@ -183,9 +184,9 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         flex: 1 1 auto;
         max-width: 13rem;
         border-radius: 999px;
-        padding: 0.34rem 0.75rem 0.42rem;
+        padding: 0.26rem 0.68rem 0.34rem;
         color: #ffffff;
-        font-size: clamp(1rem, 4.4vw, 1.45rem);
+        font-size: clamp(0.9rem, 4vw, 1.3rem);
         font-weight: 800;
         line-height: 1.1;
         text-align: center;

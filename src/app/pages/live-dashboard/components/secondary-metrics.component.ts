@@ -158,7 +158,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 0;
         border-block: 1px solid #f27032;
-        padding-block: 0.55rem;
+        padding-block: 0.38rem;
       }
 
       .metric-weather-summary,
@@ -167,13 +167,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .metric {
+        min-width: 0;
         min-height: 2.6rem;
         border: 0;
         border-radius: 0;
         background: transparent;
         box-shadow: none;
-        padding: 0.2rem;
-        gap: 0.35rem;
+        padding: 0.12rem;
+        gap: 0.24rem;
       }
 
       .metric-icon {
@@ -183,12 +184,14 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
 
       .metric img {
-        width: 1.15rem;
-        height: 1.15rem;
+        width: 1.05rem;
+        height: 1.05rem;
       }
 
       .metric strong {
-        font-size: clamp(0.74rem, 3.45vw, 1.08rem);
+        min-width: 0;
+        overflow-wrap: anywhere;
+        font-size: clamp(0.64rem, 2.9vw, 0.94rem);
       }
     }
   `,
