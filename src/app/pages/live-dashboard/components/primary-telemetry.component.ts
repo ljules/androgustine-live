@@ -152,6 +152,26 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
       }
     }
 
+    @media (min-width: 992px) and (max-width: 1299.98px) {
+      .metric {
+        gap: 0 0.52rem;
+        padding: 0.78rem;
+      }
+
+      .metric img {
+        width: clamp(1.95rem, 3.4vw, 2.65rem);
+        height: clamp(1.95rem, 3.4vw, 2.65rem);
+      }
+
+      .metric strong {
+        font-size: clamp(1.35rem, 3.55vw, 2.35rem);
+      }
+
+      .metric span {
+        font-size: 0.9rem;
+      }
+    }
+
     @media (max-width: 991.98px) {
       .primary-telemetry {
         grid-template-columns: repeat(3, minmax(0, 1fr));
