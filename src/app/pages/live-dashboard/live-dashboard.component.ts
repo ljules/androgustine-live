@@ -658,6 +658,7 @@ export class LiveDashboardComponent {
     }
 
     const ghostDistanceM = this.firstNumber(
+      telemetry?.ghostDistanceM,
       telemetry?.ghostSnappedDistanceM,
       telemetry?.ghostTrackDistanceM,
       telemetry?.ghostDistanceFromStartM,
@@ -1033,6 +1034,7 @@ export class LiveDashboardComponent {
     }
 
     const ghostDistanceM = this.firstNumber(
+      telemetry?.ghostDistanceM,
       telemetry?.ghostSnappedDistanceM,
       telemetry?.ghostTrackDistanceM,
       telemetry?.ghostDistanceFromStartM,
@@ -1115,7 +1117,7 @@ export class LiveDashboardComponent {
       return null;
     }
 
-    return snappedDistanceM + deltaDistanceM;
+    return snappedDistanceM - deltaDistanceM;
   }
 
   private osmProject(lat: number, lon: number, scale: number): { x: number; y: number } {
